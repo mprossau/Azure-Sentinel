@@ -1,0 +1,75 @@
+[
+	{
+		"name": "ZendeskAuditLogs_CL",
+		"apiVersion": "2025-02-01",
+		"type": "Microsoft.OperationalInsights/workspaces/tables",
+		"location": "{{location}}",
+		"properties": {
+			"schema": {
+				"name": "ZendeskAuditLogs_CL",
+				"columns": [
+					{
+						"name": "TimeGenerated",
+						"type": "datetime",
+						"description": "The time the audit got created"
+					},
+					{
+						"name": "action",
+						"type": "string",
+						"description": "Type of change made. Possible values are \"create\", \"destroy\", \"exported\", \"login\", and \"update\""
+					},
+					{
+						"name": "action_label",
+						"type": "string",
+						"description": "Localized string of action field"
+					},
+					{
+						"name": "actor_id",
+						"type": "int",
+						"description": "id of the user or system that initiated the change"
+					},
+					{
+						"name": "actor_name",
+						"type": "string",
+						"description": "Name of the user or system that initiated the change"
+					},
+					{
+						"name": "change_description",
+						"type": "string",
+						"description": "The description of the change that occurred"
+					},
+					{
+						"name": "id",
+						"type": "int",
+						"description": "The id automatically assigned upon creation"
+					},
+					{
+						"name": "ip_address",
+						"type": "string",
+						"description": "The IP address of the user doing the audit"
+					},
+					{
+						"name": "source_id",
+						"type": "int",
+						"description": "The id of the item being audited"
+					},
+					{
+						"name": "source_label",
+						"type": "string",
+						"description": "The name of the item being audited"
+					},
+					{
+						"name": "source_type",
+						"type": "string",
+						"description": "Item type being audited. Typically describes the system where the change was initiated. Possible values vary based on your account's Zendesk products and activity. Common values include \"apitoken\", \"rule\", \"ticket\", \"user\", and \"zendesk/app_market/app\". The \"rule\" value is used for automations, macros, triggers, views, and other automated business rules"
+					},
+					{
+						"name": "url",
+						"type": "string",
+						"description": "The URL to access the audit log"
+					}																															
+				]
+			}
+		}
+	}
+]

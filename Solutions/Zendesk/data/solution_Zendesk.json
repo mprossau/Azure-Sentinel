@@ -1,0 +1,14 @@
+{
+    "Name": "Zendesk",
+    "Author": "Michael Ross",
+    "Logo": "",
+    "Description": "Codeless connector framework poller for Zendesk",
+    "Data Connectors": [
+        "Data Connectors/ZendeskAccessLogs_CCF/ZendeskAccessLogs_connectorDefinition.json",
+        "Data Connectors/ZendeskAuditLogs_CCF/ZendeskAuditLogs_connectorDefinition.json"
+    ],
+    "BasePath": "C:\\Users\\Michael.Ross\\Downloads\\Azure-Sentinel\\Solutions\\Zendesk",
+    "Version": "3.0.0",
+    "Metadata": "SolutionMetadata.json",
+    "TemplateSpec": false
+}

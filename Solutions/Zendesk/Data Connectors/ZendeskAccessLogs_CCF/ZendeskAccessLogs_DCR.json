@@ -1,0 +1,91 @@
+{
+	"name": "ZendeskAccessLogsDCR",
+	"apiVersion": "2024-03-11",
+	"type": "Microsoft.Insights/dataCollectionRules",
+	"location": "{{location}}",
+	"properties": {
+		"streamDeclarations": {
+			"Custom-ZendeskAccessLogs": {
+				"columns": [
+					{
+						"name": "timestamp",
+						"type": "datetime"
+					},
+					{
+						"name": "authorization_type",
+						"type": "string"
+					},
+					{
+						"name": "bytes_sent",
+						"type": "int"
+					},
+					{
+						"name": "category",
+						"type": "string"
+					},
+					{
+						"name": "client",
+						"type": "string"
+					},
+					{
+						"name": "graphql",
+						"type": "dynamic"
+					},
+					{
+						"name": "id",
+						"type": "string"
+					},
+					{
+						"name": "ip_address",
+						"type": "string"
+					},
+					{
+						"name": "method",
+						"type": "string"
+					},
+					{
+						"name": "referer",
+						"type": "string"
+					},
+					{
+						"name": "status",
+						"type": "int"
+					},
+					{
+						"name": "summary",
+						"type": "string"
+					},
+					{
+						"name": "url",
+						"type": "string"
+					},
+					{
+						"name": "user_id",
+						"type": "int"
+					}
+				]
+			}
+		},
+		"destinations": {
+			"logAnalytics": [
+				{
+					"workspaceResourceId": "{{workspaceResourceId}}",
+					"name": "clv2ws1"
+				}
+			]
+		},
+		"dataFlows": [
+			{
+				"streams": [
+					"Custom-ZendeskAccessLogs"
+				],
+				"destinations": [
+					"clv2ws1"
+				],
+				"transformKql": "source \n| extend TimeGenerated = todatetime(timestamp)| project-away timestamp",
+				"outputStream": "Custom-ZendeskAccessLogs_CL"
+			}
+		],
+		"dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]"
+	}
+}

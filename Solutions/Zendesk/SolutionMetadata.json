@@ -1,0 +1,17 @@
+{
+  "publisherId": "microsoftsentinelcommunity",
+  "offerId": "azure-sentinel-solution-zendesk",
+  "firstPublishDate": "2026-07-14",
+  "lastPublishDate": "2026-07-14",
+  "providers": [],
+  "categories": {
+    "domains": [
+      "Application"
+    ]
+  },
+  "support": {
+    "name": "Community",
+    "tier": "Community",
+    "link": "https://github.com/Azure/Azure-Sentinel/issues"
+  }
+}

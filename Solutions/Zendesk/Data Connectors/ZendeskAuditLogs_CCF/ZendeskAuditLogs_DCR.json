@@ -1,0 +1,83 @@
+{
+	"name": "ZendeskAuditLogsDCR",
+	"apiVersion": "2024-03-11",
+	"type": "Microsoft.Insights/dataCollectionRules",
+	"location": "{{location}}",
+	"properties": {
+		"streamDeclarations": {
+			"Custom-ZendeskAuditLogs": {
+				"columns": [
+					{
+						"name": "created_at",
+						"type": "datetime"
+					},
+					{
+						"name": "action",
+						"type": "string"
+					},
+					{
+						"name": "action_label",
+						"type": "string"
+					},
+					{
+						"name": "actor_id",
+						"type": "int"
+					},
+					{
+						"name": "actor_name",
+						"type": "string"
+					},
+					{
+						"name": "change_description",
+						"type": "string"
+					},
+					{
+						"name": "id",
+						"type": "int"
+					},
+					{
+						"name": "ip_address",
+						"type": "string"
+					},
+					{
+						"name": "source_id",
+						"type": "int"
+					},
+					{
+						"name": "source_label",
+						"type": "string"
+					},
+					{
+						"name": "source_type",
+						"type": "string"
+					},
+					{
+						"name": "url",
+						"type": "string"
+					}	
+				]
+			}
+		},
+		"destinations": {
+			"logAnalytics": [
+				{
+					"workspaceResourceId": "{{workspaceResourceId}}",
+					"name": "clv2ws1"
+				}
+			]
+		},
+		"dataFlows": [
+			{
+				"streams": [
+					"Custom-ZendeskAuditLogs"
+				],
+				"destinations": [
+					"clv2ws1"
+				],
+				"transformKql": "source \n| extend TimeGenerated = todatetime(created_at)| project-away created_at",
+				"outputStream": "Custom-ZendeskAuditLogs_CL"
+			}
+		],
+		"dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]"
+	}
+}

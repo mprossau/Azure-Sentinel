@@ -1,0 +1,104 @@
+{
+    "name": "ZendeskAuditLogsCCFDefn",
+    "apiVersion": "2025-09-01",
+    "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+    "location": "{{location}}",
+    "kind": "Customizable",
+    "properties": {
+        "connectorUiConfig": {
+            "id": "ZendeskAuditLogsCCFDefn",
+            "title": "Zendesk Audit Logs (via CCF) - Agency Academy",
+            "publisher": "Custom",
+            "descriptionMarkdown": "Ingests Zendesk **Audit Logs** (`GET /api/v2/audit_logs`) into Microsoft Sentinel using the Codeless Connector Framework. Requires a confidential OAuth client registered in Zendesk Admin Center with `read` scope.",
+            "graphQueriesTableName": "ZendeskAuditLogs_CL",
+            "graphQueries": [
+                {
+                    "metricName": "Total data received",
+                    "legend": "Zendesk Audit Logs",
+                    "baseQuery": "{{graphQueriesTableName}}"
+                }
+            ],
+            "sampleQueries": [
+                {
+                    "description": "Top 10 most recent audit log entries",
+                    "query": "{{graphQueriesTableName}}\n| sort by TimeGenerated desc\n| take 10"
+                },
+                {
+                    "description": "Audit logs by actor",
+                    "query": "{{graphQueriesTableName}}\n| summarize Count = count() by actor_name_s\n| sort by Count desc"
+                }
+            ],
+            "dataTypes": [
+                {
+                    "name": "{{graphQueriesTableName}}",
+                    "lastDataReceivedQuery": "{{graphQueriesTableName}}\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                }
+            ],
+            "connectivityCriteria": [
+                {
+                    "type": "HasDataConnectors"
+                }
+            ],
+            "availability": {
+                "status": 1,
+                "isPreview": true
+            },
+            "permissions": {
+                "resourceProvider": [
+                    {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "providerDisplayName": "Workspace",
+                        "permissionsDisplayText": "Read and Write permissions are required.",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                            "read": true,
+                            "write": true,
+                            "delete": true
+                        }
+                    }
+                ],
+                "customs": [
+                    {
+                        "name": "Zendesk OAuth Confidential Client",
+                        "description": "You need a Zendesk OAuth client (Admin Center → Apps and integrations → APIs → Zendesk API → OAuth Clients) with 'Confidential' checked, and the `read` scope granted."
+                    }
+                ]
+            },
+            "instructionSteps": [
+                {
+                    "title": "Connect Zendesk Audit Logs to Microsoft Sentinel",
+                    "description": "Enter your Zendesk subdomain and OAuth confidential client credentials, then click Connect.",
+                    "instructions": [
+                        {
+                            "type": "Textbox",
+                            "parameters": {
+                                "label": "Zendesk Subdomain",
+                                "placeholder": "yourcompany",
+                                "type": "text",
+                                "name": "ZendeskSubdomain"
+                            }
+                        },
+                        {
+                            "type": "OAuthForm",
+                            "parameters": {
+                                "clientIdLabel": "Client ID",
+                                "clientSecretLabel": "Client Secret",
+                                "connectButtonLabel": "Connect",
+                                "disconnectButtonLabel": "Disconnect"
+                            }
+                        },
+                        {
+                            "type": "InfoMessage",
+                            "parameters": {
+                                "text": "Ensure the OAuth client scope includes 'read' and the client is marked as Confidential in Zendesk Admin Center.",
+                                "visible": true,
+                                "inline": true
+                            }
+                        }
+                    ]
+                }
+            ],
+            "isConnectivityCriteriasMatchSome": false
+        }
+    }
+}

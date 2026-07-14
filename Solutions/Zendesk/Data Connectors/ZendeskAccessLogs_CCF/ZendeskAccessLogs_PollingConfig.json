@@ -1,0 +1,58 @@
+[
+	{
+		"type": "Microsoft.SecurityInsights/dataConnectors",
+		"apiVersion": "2025-09-01",
+		"name": "ZendeskAccessLogs",
+		"location": "{{location}}",
+		"kind": "RestApiPoller",
+		"properties": {
+			"connectorDefinitionName": "ZendeskAccessLogsCCFDefn",
+			"dataType": "ZendeskAccessLogs_CL",
+			"auth": {
+				"type": "OAuth2",
+				"GrantType": "client_credentials",
+				"TokenEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/oauth/token",
+				"ClientId": "{{ZendeskClientId}}",
+				"ClientSecret": "{{ZendeskClientSecret}}",
+				"Scope": "read",
+				"TokenEndpointHeaders": {
+					"Content-Type": "application/json"
+				},
+				"IsClientSecretInHeader": false,
+				"isCredentialsInHeader": false
+			},
+			"request": {
+				"apiEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/api/v2/access_logs",
+				"httpMethod": "Get",
+				"queryParameters": {
+					"sort": "created_at",
+					"page[size]": 100
+				},
+				"queryWindowInMin": 60,
+				"startTimeAttributeName": "filter[start]",
+				"endTimeAttributeName": "filter[end]",
+				"queryTimeFormat": "yyyy-MM-ddTHH:mm:ssZ",
+				"retryCount": 3,
+				"timeoutInSeconds": 60,
+				"headers": {
+					"Accept": "application/json"
+				}
+			},
+			"paging": {
+				"pagingType": "NextPageUrl",
+				"nextPageParaName": "links.next",
+				"hasNextFlag": "meta.has_more"
+			},
+			"response": {
+				"eventsJsonPaths": [
+					"$.access_logs"
+				]
+			},
+			"dcrConfig": {
+				"streamName": "Custom-ZendeskAccessLogs",
+				"dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+				"dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
+			}
+		}
+	}
+]

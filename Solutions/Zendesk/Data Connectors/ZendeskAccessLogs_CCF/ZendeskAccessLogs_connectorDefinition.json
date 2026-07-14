@@ -1,0 +1,104 @@
+{
+    "name": "ZendeskAccessLogsCCFDefn",
+    "apiVersion": "2025-09-01",
+    "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+    "location": "{{location}}",
+    "kind": "Customizable",
+    "properties": {
+        "connectorUiConfig": {
+            "id": "ZendeskAccessLogsCCFDefn",
+            "title": "Zendesk Access Logs (via CCF) - Agency Academy",
+            "publisher": "Custom",
+            "descriptionMarkdown": "Ingests Zendesk **Access Logs** (`GET /api/v2/access_logs`) into Microsoft Sentinel using the Codeless Connector Framework. Requires the Advanced Data Privacy and Protection (ADPP) add-on and a confidential OAuth client registered in Zendesk Admin Center with `read` scope.",
+            "graphQueriesTableName": "ZendeskAccessLogs_CL",
+            "graphQueries": [
+                {
+                    "metricName": "Total data received",
+                    "legend": "Zendesk Access Logs",
+                    "baseQuery": "{{graphQueriesTableName}}"
+                }
+            ],
+            "sampleQueries": [
+                {
+                    "description": "Top 10 most recent access log entries",
+                    "query": "{{graphQueriesTableName}}\n| sort by TimeGenerated desc\n| take 10"
+                },
+                {
+                    "description": "Access logs by user",
+                    "query": "{{graphQueriesTableName}}\n| summarize Count = count() by user_id\n| sort by Count desc"
+                }
+            ],
+            "dataTypes": [
+                {
+                    "name": "{{graphQueriesTableName}}",
+                    "lastDataReceivedQuery": "{{graphQueriesTableName}}\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                }
+            ],
+            "connectivityCriteria": [
+                {
+                    "type": "HasDataConnectors"
+                }
+            ],
+            "availability": {
+                "status": 1,
+                "isPreview": true
+            },
+            "permissions": {
+                "resourceProvider": [
+                    {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "providerDisplayName": "Workspace",
+                        "permissionsDisplayText": "Read and Write permissions are required.",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                            "read": true,
+                            "write": true,
+                            "delete": true
+                        }
+                    }
+                ],
+                "customs": [
+                    {
+                        "name": "Zendesk OAuth Confidential Client + ADPP Add-on",
+                        "description": "You need the Advanced Data Privacy and Protection (ADPP) add-on enabled and a Zendesk OAuth client (Admin Center → Apps and integrations → APIs → Zendesk API → OAuth Clients) with 'Confidential' checked, and the `read` scope granted."
+                    }
+                ]
+            },
+            "instructionSteps": [
+                {
+                    "title": "Connect Zendesk Access Logs to Microsoft Sentinel",
+                    "description": "Enter your Zendesk subdomain and OAuth confidential client credentials, then click Connect.",
+                    "instructions": [
+                        {
+                            "type": "Textbox",
+                            "parameters": {
+                                "label": "Zendesk Subdomain",
+                                "placeholder": "yourcompany",
+                                "type": "text",
+                                "name": "ZendeskSubdomain"
+                            }
+                        },
+                        {
+                            "type": "OAuthForm",
+                            "parameters": {
+                                "clientIdLabel": "Client ID",
+                                "clientSecretLabel": "Client Secret",
+                                "connectButtonLabel": "Connect",
+                                "disconnectButtonLabel": "Disconnect"
+                            }
+                        },
+                        {
+                            "type": "InfoMessage",
+                            "parameters": {
+                                "text": "Requires the ADPP add-on. Ensure the OAuth client scope includes 'read' and the client is marked as Confidential in Zendesk Admin Center.",
+                                "visible": true,
+                                "inline": true
+                            }
+                        }
+                    ]
+                }
+            ],
+            "isConnectivityCriteriasMatchSome": false
+        }
+    }
+}

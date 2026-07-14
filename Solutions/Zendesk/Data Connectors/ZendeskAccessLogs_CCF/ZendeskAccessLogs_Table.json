@@ -1,0 +1,85 @@
+[
+	{
+		"name": "ZendeskAccessLogs_CL",
+		"apiVersion": "2025-02-01",
+		"type": "Microsoft.OperationalInsights/workspaces/tables",
+		"location": "{{location}}",
+		"properties": {
+			"schema": {
+				"name": "ZendeskAccessLogs_CL",
+				"columns": [
+					{
+						"name": "TimeGenerated",
+						"type": "datetime",
+						"description": "The time the request was made"
+					},
+					{
+						"name": "authorization_type",
+						"type": "string",
+						"description": "The method used for user authorization. Example: \"basic\", \"session\", \"digest\", \"bearer\""
+					},
+					{
+						"name": "bytes_sent",
+						"type": "int",
+						"description": "The size of the response body in bytes"
+					},
+					{
+						"name": "category",
+						"type": "string",
+						"description": "A translated category for the access log entry that identifies the type of resource accessed. Examples: \"Users\", \"Tickets\""
+					},
+					{
+						"name": "client",
+						"type": "string",
+						"description": "The user agent. Example: a web browser"
+					},
+					{
+						"name": "graphql",
+						"type": "dynamic",
+						"description": "Optional details if the request was a GraphQL query, including operation_name, operation_type, query, and variables"
+					},
+					{
+						"name": "id",
+						"type": "string",
+						"description": "Unique identifier for the access log"
+					},
+					{
+						"name": "ip_address",
+						"type": "string",
+						"description": "IP address of the user who made the request"
+					},
+					{
+						"name": "method",
+						"type": "string",
+						"description": "HTTP method of the request. Possible values: \"GET\", \"POST\", \"PUT\", \"DELETE\""
+					},
+					{
+						"name": "referer",
+						"type": "string",
+						"description": "The browser URL (referer) from which the request originated"
+					},
+					{
+						"name": "status",
+						"type": "int",
+						"description": "HTTP status code of the response"
+					},
+					{
+						"name": "summary",
+						"type": "string",
+						"description": "A translated summary description of the access log entry that provides a human-readable explanation of the action performed. Examples: \"List users\", \"View ticket\""
+					},
+					{
+						"name": "url",
+						"type": "string",
+						"description": "URL of the request"
+					},
+					{
+						"name": "user_id",
+						"type": "int",
+						"description": "ID of the user who made the request"
+					}
+				]
+			}
+		}
+	}
+]

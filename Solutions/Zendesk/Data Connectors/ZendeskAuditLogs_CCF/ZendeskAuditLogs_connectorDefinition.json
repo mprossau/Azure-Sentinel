@@ -7,7 +7,7 @@
     "properties": {
         "connectorUiConfig": {
             "id": "ZendeskAuditLogsCCFDefn",
-            "title": "Zendesk Audit Logs (via CCF) - Agency Academy",
+            "title": "Zendesk Audit Logs (via CCF)",
             "publisher": "Custom",
             "descriptionMarkdown": "Ingests Zendesk **Audit Logs** (`GET /api/v2/audit_logs`) into Microsoft Sentinel using the Codeless Connector Framework. Requires a confidential OAuth client registered in Zendesk Admin Center with `read` scope.",
             "graphQueriesTableName": "ZendeskAuditLogs_CL",

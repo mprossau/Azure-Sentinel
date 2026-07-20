@@ -11,22 +11,21 @@
 			"auth": {
 				"type": "OAuth2",
 				"GrantType": "client_credentials",
-				"TokenEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/oauth/token",
-				"ClientId": "{{ZendeskClientId}}",
-				"ClientSecret": "{{ZendeskClientSecret}}",
+				"TokenEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/oauth/tokens",
+				"ClientId": "{{ClientId}}",
+				"ClientSecret": "{{ClientSecret}}",
 				"Scope": "read",
+				"TokenEndpointQueryParameters": {},
 				"TokenEndpointHeaders": {
-					"Content-Type": "application/json"
-				},
-				"IsClientSecretInHeader": false,
-				"isCredentialsInHeader": false
+					"Accept": "application/json",
+					"Content-Type": "application/x-www-form-urlencoded"
+				}
 			},
 			"request": {
 				"apiEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/api/v2/access_logs",
 				"httpMethod": "Get",
 				"queryParameters": {
-					"sort": "created_at",
-					"page[size]": 100
+					"page[size]": "100"
 				},
 				"queryWindowInMin": 60,
 				"startTimeAttributeName": "filter[start]",
@@ -39,11 +38,17 @@
 				}
 			},
 			"paging": {
-				"pagingType": "NextPageUrl",
-				"nextPageParaName": "links.next",
-				"hasNextFlag": "meta.has_more"
+				"pagingType": "NextPageToken",
+				"pageSizeParameterName": "page[size]",
+				"pageSize": 100,
+				"nextPageParaName": "page[after]",
+				"nextPageTokenJsonPath": "$.meta.after_cursor",
+				"hasNextFlagJsonPath": "$..meta[?(@.has_more == true)]",
+				"pagingInfoPlacement": "QueryString",
+				"pagingQueryParamOnly": true
 			},
 			"response": {
+				"format": "json",
 				"eventsJsonPaths": [
 					"$.access_logs"
 				]

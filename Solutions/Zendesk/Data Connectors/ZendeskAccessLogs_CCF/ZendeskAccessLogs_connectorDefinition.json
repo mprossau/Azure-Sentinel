@@ -7,7 +7,7 @@
     "properties": {
         "connectorUiConfig": {
             "id": "ZendeskAccessLogsCCFDefn",
-            "title": "Zendesk Access Logs (via CCF) - Agency Academy",
+            "title": "Zendesk Access Logs (via CCF)",
             "publisher": "Custom",
             "descriptionMarkdown": "Ingests Zendesk **Access Logs** (`GET /api/v2/access_logs`) into Microsoft Sentinel using the Codeless Connector Framework. Requires the Advanced Data Privacy and Protection (ADPP) add-on and a confidential OAuth client registered in Zendesk Admin Center with `read` scope.",
             "graphQueriesTableName": "ZendeskAccessLogs_CL",

@@ -11,27 +11,25 @@
 			"auth": {
 				"type": "OAuth2",
 				"GrantType": "client_credentials",
-				"TokenEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/oauth/token",
-				"ClientId": "{{ZendeskClientId}}",
-				"ClientSecret": "{{ZendeskClientSecret}}",
+				"TokenEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/oauth/tokens",
+				"ClientId": "{{ClientId}}",
+				"ClientSecret": "{{ClientSecret}}",
 				"Scope": "read",
+				"TokenEndpointQueryParameters": {},
 				"TokenEndpointHeaders": {
-					"Content-Type": "application/json"
-				},
-				"IsClientSecretInHeader": false,
-				"isCredentialsInHeader": false
+					"Accept": "application/json",
+					"Content-Type": "application/x-www-form-urlencoded"
+				}
 			},
 			"request": {
 				"apiEndpoint": "https://{{ZendeskSubdomain}}.zendesk.com/api/v2/audit_logs",
 				"httpMethod": "Get",
 				"queryParameters": {
-					"sort_by": "created_at",
-					"sort_order": "asc",
-					"page[size]": 100
+					"page[size]": "100"
 				},
+				"startTimeAttributeName": "filter[created_at][]",
+				"endTimeAttributeName": "filter[created_at][]",
 				"queryWindowInMin": 60,
-				"startTimeAttributeName": "filter[created_at]",
-				"endTimeAttributeName": "filter[created_at]",
 				"queryTimeFormat": "yyyy-MM-ddTHH:mm:ssZ",
 				"retryCount": 3,
 				"timeoutInSeconds": 60,
@@ -40,15 +38,21 @@
 				}
 			},
 			"paging": {
-				"pagingType": "NextPageUrl",
-				"nextPageParaName": "links.next",
-				"hasNextFlag": "meta.has_more"
+				"pagingType": "NextPageToken",
+				"pageSizeParameterName": "page[size]",
+				"pageSize": 100,
+				"nextPageParaName": "page[after]",
+				"nextPageTokenJsonPath": "$.meta.after_cursor",
+				"hasNextFlagJsonPath": "$..meta[?(@.has_more == true)]",
+				"pagingInfoPlacement": "QueryString",
+				"pagingQueryParamOnly": true
 			},
 			"response": {
+				"format": "json",
 				"eventsJsonPaths": [
 					"$.audit_logs"
 				]
-			}
+			},
 			"dcrConfig": {
 				"streamName": "Custom-ZendeskAuditLogs",
 				"dataCollectionEndpoint": "{{dataCollectionEndpoint}}",

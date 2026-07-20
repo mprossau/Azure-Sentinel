@@ -21,7 +21,7 @@
 					},
 					{
 						"name": "actor_id",
-						"type": "int"
+						"type": "long"
 					},
 					{
 						"name": "actor_name",
@@ -33,7 +33,7 @@
 					},
 					{
 						"name": "id",
-						"type": "int"
+						"type": "long"
 					},
 					{
 						"name": "ip_address",
@@ -41,7 +41,7 @@
 					},
 					{
 						"name": "source_id",
-						"type": "int"
+						"type": "long"
 					},
 					{
 						"name": "source_label",

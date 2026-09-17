@@ -1,0 +1,50 @@
+[
+    {
+        "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+        "name": "AsanaAuditPoller",
+        "apiVersion": "2025-09-01",
+        "kind": "RestApiPoller",
+        "properties": {
+            "connectorDefinitionName": "AsanaAuditDefinition",
+            "dataType": "AsanaAudit_CL",
+            "isActive": true,
+            "auth": {
+                "type": "APIKey",
+                "apiKeyName": "Authorization",
+                "ApiKey": "{{apikey}}",
+                "apiKeyIdentifier": "Bearer"
+            },
+            "request": {
+                "apiEndpoint": "[[concat('https://app.asana.com/api/1.0/workspaces/',{{AsanaWorkspaceGID}},'/audit_log_events')]",
+                "rateLimitQPS": 10,
+                "httpMethod": "GET",
+                "retryCount": 3,
+                "timeoutInSeconds": 60,
+                "headers": {
+                    "Accept": "application/json",
+                    "User-Agent": "scuba"
+                },
+                "queryTimeFormat": "yyyy-MM-ddTHH:mm:ssZ",
+                "queryWindowInMin": 10,
+                "StartTimeAttributeName": "start_at",
+                "EndTimeAttributeName": "end_at"
+            },
+            "response": {
+                "eventsJsonPaths": [
+                    "$.data"
+                ],
+                "format": "json"
+            },
+            "paging": {
+                "pagingType": "NextPageToken",
+                "NextPageTokenJsonPath": "$.next_page.offset",
+                "NextPageParaName": "offset"
+            },
+            "dcrConfig": {
+                "dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+                "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}",
+                "streamName": "Custom-AsanaAudit_CL"
+            }
+        }
+    }
+]

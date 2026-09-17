@@ -1,0 +1,73 @@
+{
+	"name": "ProofpointPODAudit_CL",
+	"apiVersion": "2025-07-01",
+	"type": "Microsoft.OperationalInsights/workspaces/tables",
+	"location": "{{location}}",
+	"properties": {
+		"schema": {
+			"name": "ProofpointPODAudit_CL",
+			"columns": [
+				{
+					"name": "TimeGenerated",
+					"type": "datetime"
+				},
+				{
+					"name": "guid",
+					"type": "string"
+				},
+				{
+					"name": "eventTime",
+					"type": "datetime"
+				},
+				{
+					"name": "metadata",
+					"type": "dynamic"
+				},
+				{
+					"name": "action",
+					"type": "string"
+				},
+				{
+					"name": "level",
+					"type": "string"
+				},
+				{
+					"name": "resourceType",
+					"type": "string"
+				},
+				{
+					"name": "tags",
+					"type": "dynamic"
+				},							
+				{
+					"name": "user",
+					"type": "dynamic"
+				},
+				{
+					"name": "ipAddress",
+					"type": "string"
+				},
+				{
+					"name": "SrcGeoCountry",
+					"type": "string"
+				},
+				{
+					"name": "SrcGeoCity",
+					"type": "string"
+				},
+				{
+					"name": "SrcGeoRegion",
+					"type": "string"
+				},
+				{
+					"name": "SrcGeoLongitude",
+					"type": "real"
+				},
+				{
+					"name": "SrcGeoLatitude",
+					"type": "real"
+				}
+			]
+		}
+	}
+}

@@ -1,0 +1,13 @@
+{
+    "Name": "SAPLitmosScenicAcademy",
+    "Author": "Michael Ross",
+    "Logo": "",
+    "Description": "Codeless connector framework poller for SAP Litmos",
+    "Data Connectors": [
+        "Data Connectors/SAPLitmos_CCF/SAPLitmos_connectorDefinition.json"
+    ],
+    "BasePath": "C:\\Users\\Michael.Ross\\Downloads\\Azure-Sentinel\\Solutions\\SAPLitmosScenicAcademy",
+    "Version": "3.0.0",
+    "Metadata": "SolutionMetadata.json",
+    "TemplateSpec": false
+}

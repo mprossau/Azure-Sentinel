@@ -1,0 +1,1038 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "author": "Michael Ross",
+    "comments": "Solution template for SAPLitmosScenicAcademy"
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Not used, but needed to pass arm-ttk test `Location-Should-Not-Be-Hardcoded`.  We instead use the `workspace-location` which is derived from the LA workspace"
+      }
+    },
+    "workspace-location": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "[concat('Region to deploy solution resources -- separate from location selection',parameters('location'))]"
+      }
+    },
+    "workspace": {
+      "defaultValue": "",
+      "type": "string",
+      "metadata": {
+        "description": "Workspace name for Log Analytics where Microsoft Sentinel is setup"
+      }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "resource group name where Microsoft Sentinel is setup"
+      }
+    },
+    "subscription": {
+      "type": "string",
+      "defaultValue": "[last(split(subscription().id, '/'))]",
+      "metadata": {
+        "description": "subscription id where Microsoft Sentinel is setup"
+      }
+    }
+  },
+  "variables": {
+    "_solutionName": "SAPLitmosScenicAcademy",
+    "_solutionVersion": "3.0.0",
+    "solutionId": "Scenic.SAPLitmos",
+    "_solutionId": "[variables('solutionId')]",
+    "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
+    "dataConnectorCCPVersion": "3.0.0",
+    "_dataConnectorContentIdConnectorDefinition1": "SAPLitmosScenicAcademyCCFDefn",
+    "dataConnectorTemplateNameConnectorDefinition1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition1')))]",
+    "_dataConnectorContentIdConnections1": "SAPLitmosScenicAcademyCCFDefnConnections",
+    "dataConnectorTemplateNameConnections1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnections1')))]",
+    "blanks": "[replace('b', 'b', '')]",
+    "_solutioncontentProductId": "[concat(take(variables('_solutionId'),50),'-','sl','-', uniqueString(concat(variables('_solutionId'),'-','Solution','-',variables('_solutionId'),'-', variables('_solutionVersion'))))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnectorDefinition1'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition1')]",
+        "displayName": "SAP Litmos Org Activity Logs (via CCF) - Scenic Academy",
+        "contentKind": "DataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition1'))]",
+              "apiVersion": "2022-09-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+              "location": "[parameters('workspace-location')]",
+              "kind": "Customizable",
+              "properties": {
+                "connectorUiConfig": {
+                  "id": "SAPLitmosScenicAcademyCCFDefn",
+                  "title": "SAP Litmos Org Activity Logs (via CCF) - Scenic Academy",
+                  "publisher": "Scenic Security",
+                  "descriptionMarkdown": "Ingests SAP Litmos org activity logs into Microsoft Sentinel via the Codeless Connector Framework. To connect multiple SAP Litmos environments, deploy this connector once per source identifier.",
+                  "graphQueriesTableName": "SAPLitmosLogin_CL",
+                  "graphQueries": [
+                    {
+                      "metricName": "Total data received",
+                      "legend": "SAP Litmos Activity Logs",
+                      "baseQuery": "{{graphQueriesTableName}}"
+                    }
+                  ],
+                  "sampleQueries": [
+                    {
+                      "description": "Show the latest SAP Litmos login events",
+                      "query": "SAPLitmosLogin_CL\n| sort by TimeGenerated desc\n| take 10"
+                    },
+                    {
+                      "description": "Show the latest SAP Litmos settings change events",
+                      "query": "SAPLitmosSettings_CL\n| sort by TimeGenerated desc\n| take 10"
+                    },
+                    {
+                      "description": "Show the latest SAP Litmos user profile change events",
+                      "query": "SAPLitmosUserProfile_CL\n| sort by TimeGenerated desc\n| take 10"
+                    }
+                  ],
+                  "dataTypes": [
+                    {
+                      "name": "{{graphQueriesTableName}}",
+                      "lastDataReceivedQuery": "{{graphQueriesTableName}}\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                    },
+                    {
+                      "name": "SAPLitmosSettings_CL",
+                      "lastDataReceivedQuery": "SAPLitmosSettings_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                    },
+                    {
+                      "name": "SAPLitmosUserProfile_CL",
+                      "lastDataReceivedQuery": "SAPLitmosUserProfile_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                    }
+                  ],
+                  "connectivityCriteria": [
+                    {
+                      "type": "HasDataConnectors"
+                    }
+                  ],
+                  "availability": {
+                    "status": 1,
+                    "isPreview": true
+                  },
+                  "permissions": {
+                    "resourceProvider": [
+                      {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "Read and write permissions on the workspace are required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                          "read": true,
+                          "write": true,
+                          "delete": true,
+                          "action": false
+                        }
+                      }
+                    ],
+                    "customs": [
+                      {
+                        "name": "SAP Litmos API key",
+                        "description": "A valid SAP Litmos API key with access to the org activity endpoints is required for each source."
+                      }
+                    ]
+                  },
+                  "instructionSteps": [
+                    {
+                      "title": "Connect SAP Litmos to Microsoft Sentinel",
+                      "description": "Enter your SAP Litmos API key.",
+                      "instructions": [
+                        {
+                          "type": "Markdown",
+                          "parameters": {
+                            "content": "### Prerequisites\nRetrieve your API key from the SAP Litmos Admin portal under **Account Settings > API**.\n"
+                          }
+                        },
+                        {
+                          "type": "Textbox",
+                          "parameters": {
+                            "label": "SAP Litmos API Key",
+                            "placeholder": "Enter your SAP Litmos API key",
+                            "type": "password",
+                            "name": "apiKey"
+                          }
+                        },
+                        {
+                          "type": "ConnectionToggleButton",
+                          "parameters": {
+                            "connectLabel": "Connect",
+                            "name": "toggle"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "isConnectivityCriteriasMatchSome": false
+                }
+              }
+            },
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition1')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition1'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnectorDefinition1')]",
+                "kind": "DataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "Michael Ross"
+                },
+                "support": {
+                  "name": "Michael Ross",
+                  "email": "security@scenic.group",
+                  "tier": "Community"
+                },
+                "dependencies": {
+                  "criteria": [
+                    {
+                      "version": "[variables('dataConnectorCCPVersion')]",
+                      "contentId": "[variables('_dataConnectorContentIdConnections1')]",
+                      "kind": "ResourcesDataConnector"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "SAPLitmosScenicAcademyDCR",
+              "apiVersion": "2022-06-01",
+              "type": "Microsoft.Insights/dataCollectionRules",
+              "location": "[parameters('workspace-location')]",
+              "kind": "[variables('blanks')]",
+              "properties": {
+                "streamDeclarations": {
+                  "Custom-SAPLitmosLogin": {
+                    "columns": [
+                      {
+                        "name": "LoginDate",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ActivityType",
+                        "type": "string"
+                      },
+                      {
+                        "name": "UserId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "OriginalUserId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Username",
+                        "type": "string"
+                      },
+                      {
+                        "name": "IPAddress",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "Custom-SAPLitmosSettings": {
+                    "columns": [
+                      {
+                        "name": "ActivityType",
+                        "type": "string"
+                      },
+                      {
+                        "name": "Category",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ObjectType",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ObjectId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "OriginalObjectId",
+                        "type": "int"
+                      },
+                      {
+                        "name": "ObjectName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "TargetObjectType",
+                        "type": "string"
+                      },
+                      {
+                        "name": "TargetObjectId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "OriginalTargetObjectId",
+                        "type": "int"
+                      },
+                      {
+                        "name": "TargetObjectName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "OldValue",
+                        "type": "string"
+                      },
+                      {
+                        "name": "NewValue",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ActivityBy",
+                        "type": "int"
+                      },
+                      {
+                        "name": "ActivityByUserName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ActivityDate",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "Custom-SAPLitmosUserProfile": {
+                    "columns": [
+                      {
+                        "name": "ActivityType",
+                        "type": "string"
+                      },
+                      {
+                        "name": "UserId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "OriginalUserId",
+                        "type": "int"
+                      },
+                      {
+                        "name": "OldValue",
+                        "type": "string"
+                      },
+                      {
+                        "name": "NewValue",
+                        "type": "string"
+                      },
+                      {
+                        "name": "CustomFieldLabel",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ActivityBy",
+                        "type": "int"
+                      },
+                      {
+                        "name": "ActivityByUserName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "ActivityDate",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "destinations": {
+                  "logAnalytics": [
+                    {
+                      "workspaceResourceId": "[variables('workspaceResourceId')]",
+                      "name": "clv2ws1"
+                    }
+                  ]
+                },
+                "dataFlows": [
+                  {
+                    "streams": [
+                      "Custom-SAPLitmosLogin"
+                    ],
+                    "destinations": [
+                      "clv2ws1"
+                    ],
+                    "transformKql": "source \n| extend TimeGenerated = todatetime(LoginDate), Environment = 'scenicacademy' \n| extend IPAddress = iff(IPAddress == 'RELOAD', '', tostring(split(IPAddress, ':')[0])) \n| extend Username = iff(isempty(Username) or Username == 'Username' or Username startswith '{\"@i:nil\"', '', Username) \n| extend UserId = iff(UserId == '0', '', UserId) \n| extend OriginalUserId = iff(OriginalUserId == '0', '', OriginalUserId) \n| project-away LoginDate",
+                    "outputStream": "Custom-SAPLitmosLogin_CL"
+                  },
+                  {
+                    "streams": [
+                      "Custom-SAPLitmosSettings"
+                    ],
+                    "destinations": [
+                      "clv2ws1"
+                    ],
+                    "transformKql": "source \n| extend TimeGenerated = todatetime(ActivityDate), Environment = 'scenicacademy' \n| extend ObjectName = iff(ObjectName startswith '{\"@i:nil\"', '', ObjectName) \n| extend TargetObjectName = iff(TargetObjectName startswith '{\"@i:nil\"', '', TargetObjectName) \n| extend OldValue = iff(OldValue startswith '{\"@i:nil\"', '', OldValue) \n| extend NewValue = iff(NewValue startswith '{\"@i:nil\"', '', NewValue) \n| project-away ActivityDate",
+                    "outputStream": "Custom-SAPLitmosSettings_CL"
+                  },
+                  {
+                    "streams": [
+                      "Custom-SAPLitmosUserProfile"
+                    ],
+                    "destinations": [
+                      "clv2ws1"
+                    ],
+                    "transformKql": "source \n| extend TimeGenerated = todatetime(ActivityDate), Environment = 'scenictacademy' \n| extend OldValue = iff(OldValue startswith '{\"@i:nil\"', '', OldValue) \n| extend NewValue = iff(NewValue startswith '{\"@i:nil\"', '', NewValue) \n| extend CustomFieldLabel = iff(CustomFieldLabel startswith '{\"@i:nil\"', '', CustomFieldLabel) \n| project-away ActivityDate",
+                    "outputStream": "Custom-SAPLitmosUserProfile_CL"
+                  }
+                ],
+                "dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]"
+              }
+            },
+            {
+              "name": "SAPLitmosLogin_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "SAPLitmosLogin_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "ActivityType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "UserId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "OriginalUserId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Username",
+                      "type": "string"
+                    },
+                    {
+                      "name": "IPAddress",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Environment",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "SAPLitmosSettings_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "SAPLitmosSettings_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "Environment",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ActivityType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "Category",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ObjectType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ObjectId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "OriginalObjectId",
+                      "type": "int"
+                    },
+                    {
+                      "name": "ObjectName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "TargetObjectType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "TargetObjectId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "OriginalTargetObjectId",
+                      "type": "int"
+                    },
+                    {
+                      "name": "TargetObjectName",
+                      "type": "string"
+                    },
+                    {
+                      "name": "OldValue",
+                      "type": "string"
+                    },
+                    {
+                      "name": "NewValue",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ActivityBy",
+                      "type": "int"
+                    },
+                    {
+                      "name": "ActivityByUserName",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "SAPLitmosUserProfile_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "SAPLitmosUserProfile_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime"
+                    },
+                    {
+                      "name": "Environment",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ActivityType",
+                      "type": "string"
+                    },
+                    {
+                      "name": "UserId",
+                      "type": "string"
+                    },
+                    {
+                      "name": "OriginalUserId",
+                      "type": "int"
+                    },
+                    {
+                      "name": "OldValue",
+                      "type": "string"
+                    },
+                    {
+                      "name": "NewValue",
+                      "type": "string"
+                    },
+                    {
+                      "name": "CustomFieldLabel",
+                      "type": "string"
+                    },
+                    {
+                      "name": "ActivityBy",
+                      "type": "int"
+                    },
+                    {
+                      "name": "ActivityByUserName",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentIdConnectorDefinition1'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition1'))]",
+      "apiVersion": "2022-09-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+      "location": "[parameters('workspace-location')]",
+      "kind": "Customizable",
+      "properties": {
+        "connectorUiConfig": {
+          "id": "SAPLitmosScenicAcademyCCFDefn",
+          "title": "SAP Litmos Org Activity Logs (via CCF) - Scenic Academy",
+          "publisher": "Scenic Security",
+          "descriptionMarkdown": "Ingests SAP Litmos org activity logs into Microsoft Sentinel via the Codeless Connector Framework. To connect multiple SAP Litmos environments, deploy this connector once per source identifier.",
+          "graphQueriesTableName": "SAPLitmosLogin_CL",
+          "graphQueries": [
+            {
+              "metricName": "Total data received",
+              "legend": "SAP Litmos Activity Logs",
+              "baseQuery": "{{graphQueriesTableName}}"
+            }
+          ],
+          "sampleQueries": [
+            {
+              "description": "Show the latest SAP Litmos login events",
+              "query": "SAPLitmosLogin_CL\n| sort by TimeGenerated desc\n| take 10"
+            },
+            {
+              "description": "Show the latest SAP Litmos settings change events",
+              "query": "SAPLitmosSettings_CL\n| sort by TimeGenerated desc\n| take 10"
+            },
+            {
+              "description": "Show the latest SAP Litmos user profile change events",
+              "query": "SAPLitmosUserProfile_CL\n| sort by TimeGenerated desc\n| take 10"
+            }
+          ],
+          "dataTypes": [
+            {
+              "name": "{{graphQueriesTableName}}",
+              "lastDataReceivedQuery": "{{graphQueriesTableName}}\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+            },
+            {
+              "name": "SAPLitmosSettings_CL",
+              "lastDataReceivedQuery": "SAPLitmosSettings_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+            },
+            {
+              "name": "SAPLitmosUserProfile_CL",
+              "lastDataReceivedQuery": "SAPLitmosUserProfile_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+            }
+          ],
+          "connectivityCriteria": [
+            {
+              "type": "HasDataConnectors"
+            }
+          ],
+          "availability": {
+            "status": 1,
+            "isPreview": true
+          },
+          "permissions": {
+            "resourceProvider": [
+              {
+                "provider": "Microsoft.OperationalInsights/workspaces",
+                "permissionsDisplayText": "Read and write permissions on the workspace are required.",
+                "providerDisplayName": "Workspace",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                  "read": true,
+                  "write": true,
+                  "delete": true,
+                  "action": false
+                }
+              }
+            ],
+            "customs": [
+              {
+                "name": "SAP Litmos API key",
+                "description": "A valid SAP Litmos API key with access to the org activity endpoints is required for each source."
+              }
+            ]
+          },
+          "instructionSteps": [
+            {
+              "title": "Connect SAP Litmos to Microsoft Sentinel",
+              "description": "Enter your SAP Litmos API key.",
+              "instructions": [
+                {
+                  "type": "Markdown",
+                  "parameters": {
+                    "content": "### Prerequisites\nRetrieve your API key from the SAP Litmos Admin portal under **Account Settings > API**.\n"
+                  }
+                },
+                {
+                  "type": "Textbox",
+                  "parameters": {
+                    "label": "SAP Litmos API Key",
+                    "placeholder": "Enter your SAP Litmos API key",
+                    "type": "password",
+                    "name": "apiKey"
+                  }
+                },
+                {
+                  "type": "ConnectionToggleButton",
+                  "parameters": {
+                    "connectLabel": "Connect",
+                    "name": "toggle"
+                  }
+                }
+              ]
+            }
+          ],
+          "isConnectivityCriteriasMatchSome": false
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition1')))]",
+      "apiVersion": "2022-01-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+      "properties": {
+        "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition1'))]",
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition1')]",
+        "kind": "DataConnector",
+        "version": "[variables('dataConnectorCCPVersion')]",
+        "source": {
+          "sourceId": "[variables('_solutionId')]",
+          "name": "[variables('_solutionName')]",
+          "kind": "Solution"
+        },
+        "author": {
+          "name": "Michael Ross"
+        },
+        "support": {
+          "name": "Michael Ross",
+          "email": "security@scenic.group",
+          "tier": "Community"
+        },
+        "dependencies": {
+          "criteria": [
+            {
+              "version": "[variables('dataConnectorCCPVersion')]",
+              "contentId": "[variables('_dataConnectorContentIdConnections1')]",
+              "kind": "ResourcesDataConnector"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnections1'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnections1')]",
+        "displayName": "SAP Litmos Org Activity Logs (via CCF) - Scenic Academy",
+        "contentKind": "ResourcesDataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {
+            "guidValue": {
+              "defaultValue": "[[newGuid()]",
+              "type": "securestring"
+            },
+            "innerWorkspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "connectorDefinitionName": {
+              "defaultValue": "SAP Litmos Org Activity Logs (via CCF) - Scenic Academy",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "workspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "dcrConfig": {
+              "defaultValue": {
+                "dataCollectionEndpoint": "data collection Endpoint",
+                "dataCollectionRuleImmutableId": "data collection rule immutableId"
+              },
+              "type": "object"
+            },
+            "apiKey": {
+              "defaultValue": "apiKey",
+              "type": "securestring",
+              "minLength": 1
+            }
+          },
+          "variables": {
+            "_dataConnectorContentIdConnections1": "[variables('_dataConnectorContentIdConnections1')]"
+          },
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnections1')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectors', variables('_dataConnectorContentIdConnections1'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnections1')]",
+                "kind": "ResourcesDataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "Michael Ross"
+                },
+                "support": {
+                  "name": "Michael Ross",
+                  "email": "security@scenic.group",
+                  "tier": "Community"
+                }
+              }
+            },
+            {
+              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'SAPLitmosLogin', parameters('guidValue'))]",
+              "apiVersion": "2023-02-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "RestApiPoller",
+              "properties": {
+                "connectorDefinitionName": "SAPLitmosScenicAcademyCCFDefn",
+                "dataType": "SAPLitmosLogin_CL",
+                "auth": {
+                  "type": "APIKey",
+                  "ApiKey": "[[parameters('apiKey')]",
+                  "ApiKeyName": "apikey",
+                  "ApiKeyIdentifier": ""
+                },
+                "request": {
+                  "apiEndpoint": "https://api.litmos.com/v1.svc/org/activities/login",
+                  "rateLimitQPS": 20,
+                  "queryWindowInMin": 10,
+                  "httpMethod": "Get",
+                  "queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+                  "retryCount": 2,
+                  "queryParameters": {
+                    "source": "scenicacademy",
+                    "limit": "100"
+                  },
+                  "headers": {
+                    "Accept": "application/xml",
+                    "User-Agent": "Scuba"
+                  },
+                  "StartTimeAttributeName": "since",
+                  "EndTimeAttributeName": "to"
+                },
+                "paging": {
+                  "pagingType": "Offset",
+                  "pageSizeParameterName": "limit",
+                  "pageSize": 100,
+                  "OffsetParaName": "start",
+                  "PagingInfoPlacement": "QueryString"
+                },
+                "response": {
+                  "format": "xml",
+                  "EventsJsonPaths": [
+                    "$.LoginActivitys.LoginActivity"
+                  ]
+                },
+                "dcrConfig": {
+                  "streamName": "Custom-SAPLitmosLogin",
+                  "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
+                  "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
+                }
+              }
+            },
+            {
+              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'SAPLitmosSettings', parameters('guidValue'))]",
+              "apiVersion": "2023-02-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "RestApiPoller",
+              "properties": {
+                "connectorDefinitionName": "SAPLitmosScenicAcademyCCFDefn",
+                "dataType": "SAPLitmosSettings_CL",
+                "auth": {
+                  "type": "APIKey",
+                  "ApiKey": "[[parameters('apiKey')]",
+                  "ApiKeyName": "apikey",
+                  "ApiKeyIdentifier": ""
+                },
+                "request": {
+                  "apiEndpoint": "https://api.litmos.com/v1.svc/org/activities/settings",
+                  "rateLimitQPS": 20,
+                  "queryWindowInMin": 10,
+                  "httpMethod": "Get",
+                  "queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+                  "retryCount": 2,
+                  "queryParameters": {
+                    "source": "scenicacademy",
+                    "limit": "100"
+                  },
+                  "headers": {
+                    "Accept": "application/xml",
+                    "User-Agent": "Scuba"
+                  },
+                  "StartTimeAttributeName": "since",
+                  "EndTimeAttributeName": "to"
+                },
+                "paging": {
+                  "pagingType": "Offset",
+                  "pageSizeParameterName": "limit",
+                  "pageSize": 100,
+                  "OffsetParaName": "start",
+                  "PagingInfoPlacement": "QueryString"
+                },
+                "response": {
+                  "format": "xml",
+                  "EventsJsonPaths": [
+                    "$.SettingsActivitys.SettingsActivity"
+                  ]
+                },
+                "dcrConfig": {
+                  "streamName": "Custom-SAPLitmosSettings",
+                  "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
+                  "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
+                }
+              }
+            },
+            {
+              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'SAPLitmosUserProfile', parameters('guidValue'))]",
+              "apiVersion": "2023-02-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "RestApiPoller",
+              "properties": {
+                "connectorDefinitionName": "SAPLitmosScenicAcademyCCFDefn",
+                "dataType": "SAPLitmosUserProfile_CL",
+                "auth": {
+                  "type": "APIKey",
+                  "ApiKey": "[[parameters('apiKey')]",
+                  "ApiKeyName": "apikey",
+                  "ApiKeyIdentifier": ""
+                },
+                "request": {
+                  "apiEndpoint": "https://api.litmos.com/v1.svc/org/activities/userprofile",
+                  "rateLimitQPS": 20,
+                  "queryWindowInMin": 10,
+                  "httpMethod": "Get",
+                  "queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+                  "retryCount": 2,
+                  "queryParameters": {
+                    "source": "scenicacademy",
+                    "limit": "100"
+                  },
+                  "headers": {
+                    "Accept": "application/xml",
+                    "User-Agent": "Scuba"
+                  },
+                  "StartTimeAttributeName": "since",
+                  "EndTimeAttributeName": "to"
+                },
+                "paging": {
+                  "pagingType": "Offset",
+                  "pageSizeParameterName": "limit",
+                  "pageSize": 100,
+                  "OffsetParaName": "start",
+                  "PagingInfoPlacement": "QueryString"
+                },
+                "response": {
+                  "format": "xml",
+                  "EventsJsonPaths": [
+                    "$.UserProfileActivitys.UserProfileActivity"
+                  ]
+                },
+                "dcrConfig": {
+                  "streamName": "Custom-SAPLitmosUserProfile",
+                  "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
+                  "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','rdc','-', uniqueString(concat(variables('_solutionId'),'-','ResourcesDataConnector','-',variables('_dataConnectorContentIdConnections1'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentPackages",
+      "apiVersion": "2023-04-01-preview",
+      "location": "[parameters('workspace-location')]",
+      "properties": {
+        "version": "3.0.0",
+        "kind": "Solution",
+        "contentSchemaVersion": "3.0.0",
+        "displayName": "SAPLitmosScenicAcademy",
+        "publisherDisplayName": "Michael Ross",
+        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/SAPLitmosScenicAcademy/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>Codeless connector framework poller for SAP Litmos</p>\n<p><strong>Data Connectors:</strong> 1</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
+        "contentKind": "Solution",
+        "contentProductId": "[variables('_solutioncontentProductId')]",
+        "id": "[variables('_solutioncontentProductId')]",
+        "icon": "",
+        "contentId": "[variables('_solutionId')]",
+        "parentId": "[variables('_solutionId')]",
+        "source": {
+          "kind": "Solution",
+          "name": "SAPLitmosScenicAcademy",
+          "sourceId": "[variables('_solutionId')]"
+        },
+        "author": {
+          "name": "Michael Ross"
+        },
+        "support": {
+          "name": "Michael Ross",
+          "email": "security@scenic.group",
+          "tier": "Community"
+        },
+        "dependencies": {
+          "operator": "AND",
+          "criteria": [
+            {
+              "kind": "DataConnector",
+              "contentId": "[variables('_dataConnectorContentIdConnections1')]",
+              "version": "[variables('dataConnectorCCPVersion')]"
+            }
+          ]
+        },
+        "firstPublishDate": "2026-05-06",
+        "providers": [
+          "Scenic Security"
+        ],
+        "categories": {
+          "domains": [
+            "Security - Network"
+          ]
+        }
+      },
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('_solutionId'))]"
+    }
+  ],
+  "outputs": {}
+}

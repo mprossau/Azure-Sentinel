@@ -1,0 +1,13 @@
+{
+    "Name": "AsanaAudit",
+    "Author": "Michael Ross",
+    "Logo": "<img src=\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Logos/AsanaLogo.svg\" width=\"75px\" height=\"75px\">",
+    "Description": "Codeless connector framework poller for Asana Audit logs",
+    "Data Connectors": [
+        "Data Connectors/AsanaAudit_CCF/AsanaAuditconnectorDefinition.json"
+    ],
+    "BasePath": "C:\\Users\\Michael.Ross\\Downloads\\code\\Azure-Sentinel\\Solutions\\AsanaAudit",
+    "Version": "3.0.0",
+    "Metadata": "SolutionMetadata.json",
+    "TemplateSpec": false
+}

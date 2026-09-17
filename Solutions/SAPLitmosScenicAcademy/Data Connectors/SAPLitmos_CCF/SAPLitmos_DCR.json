@@ -1,0 +1,183 @@
+{
+	"name": "SAPLitmosScenicAcademyDCR",
+	"apiVersion": "2024-03-11",
+	"type": "Microsoft.Insights/dataCollectionRules",
+	"location": "{{location}}",
+	"properties": {
+		"streamDeclarations": {
+			"Custom-SAPLitmosLogin": {
+				"columns": [
+					{
+						"name": "LoginDate",
+						"type": "string"
+					},
+					{
+						"name": "ActivityType",
+						"type": "string"
+					},
+					{
+						"name": "UserId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalUserId",
+						"type": "string"
+					},
+					{
+						"name": "Username",
+						"type": "string"
+					},
+					{
+						"name": "IPAddress",
+						"type": "string"
+					}
+				]
+			},
+			"Custom-SAPLitmosSettings": {
+				"columns": [
+					{
+						"name": "ActivityType",
+						"type": "string"
+					},
+					{
+						"name": "Category",
+						"type": "string"
+					},
+					{
+						"name": "ObjectType",
+						"type": "string"
+					},
+					{
+						"name": "ObjectId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalObjectId",
+						"type": "int"
+					},
+					{
+						"name": "ObjectName",
+						"type": "string"
+					},
+					{
+						"name": "TargetObjectType",
+						"type": "string"
+					},
+					{
+						"name": "TargetObjectId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalTargetObjectId",
+						"type": "int"
+					},
+					{
+						"name": "TargetObjectName",
+						"type": "string"
+					},
+					{
+						"name": "OldValue",
+						"type": "string"
+					},
+					{
+						"name": "NewValue",
+						"type": "string"
+					},
+					{
+						"name": "ActivityBy",
+						"type": "int"
+					},
+					{
+						"name": "ActivityByUserName",
+						"type": "string"
+					},
+					{
+						"name": "ActivityDate",
+						"type": "string"
+					}
+				]
+			},
+			"Custom-SAPLitmosUserProfile": {
+				"columns": [
+					{
+						"name": "ActivityType",
+						"type": "string"
+					},
+					{
+						"name": "UserId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalUserId",
+						"type": "int"
+					},
+					{
+						"name": "OldValue",
+						"type": "string"
+					},
+					{
+						"name": "NewValue",
+						"type": "string"
+					},
+					{
+						"name": "CustomFieldLabel",
+						"type": "string"
+					},
+					{
+						"name": "ActivityBy",
+						"type": "int"
+					},
+					{
+						"name": "ActivityByUserName",
+						"type": "string"
+					},
+					{
+						"name": "ActivityDate",
+						"type": "string"
+					}
+				]
+			}
+		},
+		"destinations": {
+			"logAnalytics": [
+				{
+					"workspaceResourceId": "{{workspaceResourceId}}",
+					"name": "clv2ws1"
+				}
+			]
+		},
+		"dataFlows": [
+			{
+				"streams": [
+					"Custom-SAPLitmosLogin"
+				],
+				"destinations": [
+					"clv2ws1"
+				],
+				"transformKql": "source \n| extend TimeGenerated = todatetime(LoginDate), Environment = 'scenicacademy' \n| extend IPAddress = iff(IPAddress == 'RELOAD', '', tostring(split(IPAddress, ':')[0])) \n| extend Username = iff(isempty(Username) or Username == 'Username' or Username startswith '{\"@i:nil\"', '', Username) \n| extend UserId = iff(UserId == '0', '', UserId) \n| extend OriginalUserId = iff(OriginalUserId == '0', '', OriginalUserId) \n| project-away LoginDate",
+				"outputStream": "Custom-SAPLitmosLogin_CL"
+			},
+			{
+				"streams": [
+					"Custom-SAPLitmosSettings"
+				],
+				"destinations": [
+					"clv2ws1"
+				],
+				"transformKql": "source \n| extend TimeGenerated = todatetime(ActivityDate), Environment = 'scenicacademy' \n| extend ObjectName = iff(ObjectName startswith '{\"@i:nil\"', '', ObjectName) \n| extend TargetObjectName = iff(TargetObjectName startswith '{\"@i:nil\"', '', TargetObjectName) \n| extend OldValue = iff(OldValue startswith '{\"@i:nil\"', '', OldValue) \n| extend NewValue = iff(NewValue startswith '{\"@i:nil\"', '', NewValue) \n| project-away ActivityDate",				
+				"outputStream": "Custom-SAPLitmosSettings_CL"
+			},
+			{
+				"streams": [
+					"Custom-SAPLitmosUserProfile"
+				],
+				"destinations": [
+					"clv2ws1"
+				],
+				"transformKql": "source \n| extend TimeGenerated = todatetime(ActivityDate), Environment = 'scenictacademy' \n| extend OldValue = iff(OldValue startswith '{\"@i:nil\"', '', OldValue) \n| extend NewValue = iff(NewValue startswith '{\"@i:nil\"', '', NewValue) \n| extend CustomFieldLabel = iff(CustomFieldLabel startswith '{\"@i:nil\"', '', CustomFieldLabel) \n| project-away ActivityDate",
+				"outputStream": "Custom-SAPLitmosUserProfile_CL"
+			}
+		],
+		"dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]"
+	}
+}

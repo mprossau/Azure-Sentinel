@@ -1,0 +1,173 @@
+[
+	{
+		"name": "SAPLitmosLogin_CL",
+		"apiVersion": "2025-02-01",
+		"type": "Microsoft.OperationalInsights/workspaces/tables",
+		"location": "{{location}}",
+		"properties": {
+			"schema": {
+				"name": "SAPLitmosLogin_CL",
+				"columns": [
+					{
+						"name": "TimeGenerated",
+						"type": "datetime"
+					},
+					{
+						"name": "ActivityType",
+						"type": "string"
+					},
+					{
+						"name": "UserId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalUserId",
+						"type": "string"
+					},
+					{
+						"name": "Username",
+						"type": "string"
+					},
+					{
+						"name": "IPAddress",
+						"type": "string"
+					},
+					{
+						"name": "Environment",
+						"type": "string"
+					}
+				]
+			}
+		}
+	},
+	{
+		"name": "SAPLitmosSettings_CL",
+		"apiVersion": "2025-02-01",
+		"type": "Microsoft.OperationalInsights/workspaces/tables",
+		"location": "{{location}}",
+		"properties": {
+			"schema": {
+				"name": "SAPLitmosSettings_CL",
+				"columns": [
+					{
+						"name": "TimeGenerated",
+						"type": "datetime"
+					},
+					{
+						"name": "Environment",
+						"type": "string"
+					},
+					{
+						"name": "ActivityType",
+						"type": "string"
+					},
+					{
+						"name": "Category",
+						"type": "string"
+					},
+					{
+						"name": "ObjectType",
+						"type": "string"
+					},
+					{
+						"name": "ObjectId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalObjectId",
+						"type": "int"
+					},
+					{
+						"name": "ObjectName",
+						"type": "string"
+					},
+					{
+						"name": "TargetObjectType",
+						"type": "string"
+					},
+					{
+						"name": "TargetObjectId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalTargetObjectId",
+						"type": "int"
+					},
+					{
+						"name": "TargetObjectName",
+						"type": "string"
+					},
+					{
+						"name": "OldValue",
+						"type": "string"
+					},
+					{
+						"name": "NewValue",
+						"type": "string"
+					},
+					{
+						"name": "ActivityBy",
+						"type": "int"
+					},
+					{
+						"name": "ActivityByUserName",
+						"type": "string"
+					}				
+				]
+			}
+		}
+	},
+	{
+		"name": "SAPLitmosUserProfile_CL",
+		"apiVersion": "2025-02-01",
+		"type": "Microsoft.OperationalInsights/workspaces/tables",
+		"location": "{{location}}",
+		"properties": {
+			"schema": {
+				"name": "SAPLitmosUserProfile_CL",
+				"columns": [
+					{
+						"name": "TimeGenerated",
+						"type": "datetime"
+					},
+					{
+						"name": "Environment",
+						"type": "string"
+					},
+					{
+						"name": "ActivityType",
+						"type": "string"
+					},
+					{
+						"name": "UserId",
+						"type": "string"
+					},
+					{
+						"name": "OriginalUserId",
+						"type": "int"
+					},
+					{
+						"name": "OldValue",
+						"type": "string"
+					},
+					{
+						"name": "NewValue",
+						"type": "string"
+					},
+					{
+						"name": "CustomFieldLabel",
+						"type": "string"
+					},
+					{
+						"name": "ActivityBy",
+						"type": "int"
+					},
+					{
+						"name": "ActivityByUserName",
+						"type": "string"
+					}					
+				]
+			}
+		}
+	}
+]

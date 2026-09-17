@@ -1,0 +1,113 @@
+{
+    "name": "SAPLitmosScenicAcademyCCFDefn",
+    "apiVersion": "2025-09-01",
+    "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+    "location": "{{location}}",
+    "kind": "Customizable",
+    "properties": {
+        "connectorUiConfig": {
+            "id": "SAPLitmosScenicAcademyCCFDefn",
+            "title": "SAP Litmos Org Activity Logs (via CCF) - Scenic Academy",
+            "publisher": "Scenic Security",
+            "descriptionMarkdown": "Ingests SAP Litmos org activity logs into Microsoft Sentinel via the Codeless Connector Framework. To connect multiple SAP Litmos environments, deploy this connector once per source identifier.",
+            "graphQueriesTableName": "SAPLitmosLogin_CL",
+            "graphQueries": [
+                {
+                    "metricName": "Total data received",
+                    "legend": "SAP Litmos Activity Logs",
+                    "baseQuery": "{{graphQueriesTableName}}"
+                }
+            ],
+            "sampleQueries": [
+                {
+                    "description": "Show the latest SAP Litmos login events",
+                    "query": "SAPLitmosLogin_CL\n| sort by TimeGenerated desc\n| take 10"
+                },
+                {
+                    "description": "Show the latest SAP Litmos settings change events",
+                    "query": "SAPLitmosSettings_CL\n| sort by TimeGenerated desc\n| take 10"
+                },
+                {
+                    "description": "Show the latest SAP Litmos user profile change events",
+                    "query": "SAPLitmosUserProfile_CL\n| sort by TimeGenerated desc\n| take 10"
+                }
+            ],
+            "dataTypes": [
+                {
+                    "name": "{{graphQueriesTableName}}",
+                    "lastDataReceivedQuery": "{{graphQueriesTableName}}\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                },
+                {
+                    "name": "SAPLitmosSettings_CL",
+                    "lastDataReceivedQuery": "SAPLitmosSettings_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                },
+                {
+                    "name": "SAPLitmosUserProfile_CL",
+                    "lastDataReceivedQuery": "SAPLitmosUserProfile_CL\n| summarize Time = max(TimeGenerated)\n| where isnotempty(Time)"
+                }
+            ],
+            "connectivityCriteria": [
+                {
+                    "type": "HasDataConnectors"
+                }
+            ],
+            "availability": {
+                "status": 1,
+                "isPreview": true
+            },
+            "permissions": {
+                "resourceProvider": [
+                    {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "Read and write permissions on the workspace are required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                            "read": true,
+                            "write": true,
+                            "delete": true,
+                            "action": false
+                        }
+                    }
+                ],
+                "customs": [
+                    {
+                        "name": "SAP Litmos API key",
+                        "description": "A valid SAP Litmos API key with access to the org activity endpoints is required for each source."
+                    }
+                ]
+            },
+            "instructionSteps": [
+                {
+                    "title": "Connect SAP Litmos to Microsoft Sentinel",
+                    "description": "Enter your SAP Litmos API key.",
+                    "instructions": [
+                        {
+                            "type": "Markdown",
+                            "parameters": {
+                                "content": "### Prerequisites\nRetrieve your API key from the SAP Litmos Admin portal under **Account Settings > API**.\n"
+                            }
+                        },
+                        {
+                            "type": "Textbox",
+                            "parameters": {
+                                "label": "SAP Litmos API Key",
+                                "placeholder": "Enter your SAP Litmos API key",
+                                "type": "password",
+                                "name": "apiKey"
+                            }
+                        },
+                        {
+                            "type": "ConnectionToggleButton",
+                            "parameters": {
+                                "connectLabel": "Connect",
+                                "name": "toggle"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "isConnectivityCriteriasMatchSome": false
+        }
+    }
+}

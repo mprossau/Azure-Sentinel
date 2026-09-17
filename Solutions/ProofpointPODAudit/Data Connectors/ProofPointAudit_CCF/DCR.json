@@ -1,0 +1,52 @@
+{
+	"name": "ProofpointPODAuditDCR",
+	"apiVersion": "2024-03-11",
+	"type": "Microsoft.Insights/dataCollectionRules",
+	"location": "{{location}}",
+	"kind": null,
+	"properties": {
+		"streamDeclarations": {
+			"Custom-ProofpointPODAuditLog": {
+				"columns": [
+					{
+						"name": "ts",
+						"type": "string"
+					},
+                    {
+                        "name": "guid",
+                        "type": "string"
+                    },
+					{
+						"name": "audit",
+						"type": "dynamic"
+					},
+					{
+						"name": "metadata",
+						"type": "dynamic"
+					}
+				]
+			}
+		},
+		"destinations": {
+			"logAnalytics": [
+				{
+					"workspaceResourceId": "{{workspaceResourceId}}",
+					"name": "clv2ws1"
+				}
+			]
+		},
+		"dataFlows": [
+			{
+				"streams": [
+					"Custom-ProofpointPODAuditLog"
+				],
+				"destinations": [
+					"clv2ws1"
+				],
+				"transformKql": "source \n| extend TimeGenerated = todatetime(ts), action = tostring(audit.action), level = tostring(audit.level), resourceName = tostring(audit.resourceName), resourceType = tostring(audit.resourceType), service = todynamic(audit.service), tags = todynamic(audit.tags), user = todynamic(audit.user), eventTime = todatetime(ts) \n| extend ipAddress = tostring(iff(isempty(service.ipAddress), user.ipAddress, service.ipAddress)) \n| extend GeoLocation = geo_location(ipAddress) \n| extend SrcGeoCountry = tostring(GeoLocation.Country), SrcGeoCity = tostring(GeoLocation.City), SrcGeoRegion = tostring(GeoLocation.Region), SrcGeoLongitude = toreal(GeoLocation.Longitude), SrcGeoLatitude = toreal(GeoLocation.Latitude) \n| project-away ts, audit, GeoLocation",
+				"outputStream": "Custom-ProofpointPODAudit_CL"
+			}
+		],
+		"dataCollectionEndpointId": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]"
+	}
+}

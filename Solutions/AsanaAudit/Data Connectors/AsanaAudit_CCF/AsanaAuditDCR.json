@@ -1,0 +1,78 @@
+[
+    {
+        "name": "AsanaAuditDCR",
+        "apiVersion": "2024-03-11",
+        "type": "Microsoft.Insights/dataCollectionRules",
+        "location": "{{location}}",
+        "properties": {
+            "dataCollectionEndpointId": "{{dataCollectionEndpointId}}",
+            "streamDeclarations": {
+                "Custom-AsanaAudit_CL": {
+                    "columns": [
+                        {
+                            "displayName": "created_at",
+                            "name": "created_at",
+                            "type": "datetime"
+                        },
+                        {
+                            "name": "gid",
+                            "type": "string",
+                            "description": "Globally unique identifier of the AuditLogEvent"
+                        },
+                        {
+                            "name": "event_type",
+                            "type": "string",
+                            "description": "The type of the event."
+                        },
+                        {
+                            "name": "event_category",
+                            "type": "string",
+                            "description": "The category that this event_type belongs to."
+                        },
+                        {
+                            "name": "actor",
+                            "type": "dynamic",
+                            "description": "The entity that triggered the event. Will typically be a user."
+                        },
+                        {
+                            "name": "resource",
+                            "type": "dynamic",
+                            "description": "The primary object that was affected by this event."
+                        },
+                        {
+                            "name": "details",
+                            "type": "dynamic",
+                            "description": "Event specific details."
+                        },
+                        {
+                            "name": "context",
+                            "type": "dynamic",
+                            "description": "The context from which this event originated.."
+                        }
+                    ]
+                }
+            },
+            "dataSources": {},
+            "destinations": {
+                "logAnalytics": [
+                    {
+                        "workspaceResourceId": "{{workspaceResourceId}}",
+                        "name": "clv2ws1"
+                    }
+                ]
+            },
+            "dataFlows": [
+                {
+                    "streams": [
+                        "Custom-AsanaAudit_CL"
+                    ],
+                    "destinations": [
+                        "clv2ws1"
+                    ],
+                    "transformKql": "source\n| extend TimeGenerated = todatetime(created_at)\n | extend ActorType = tostring(actor.actor_type), ActorEmail = tostring(actor.email), ActorGid = tostring(actor.gid), ActorName = tostring(actor.name), ApiAuthenticationMethod = tostring(context.api_authentication_method), SrcIpAddr = tostring(context.client_ip_address), ContextType = tostring(context.context_type), UserAgent = tostring(context.user_agent), OauthAppName = tostring(context.oauth_app_name), RuleName = tostring(context.rule_name), ResourceEmail = tostring(resource.email), ResourceGid = tostring(resource.gid), ResourceName = tostring(resource.name), ResourceSubType = tostring(resource.sub_type), ResourceType = tostring(resource.type)\n | extend Src = SrcIpAddr",
+                    "outputStream": "Custom-AsanaAudit_CL"
+                }
+            ]
+        }
+    }
+]

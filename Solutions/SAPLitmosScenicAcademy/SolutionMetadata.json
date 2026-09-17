@@ -1,0 +1,18 @@
+{
+    "publisherId": "Scenic",
+    "offerId": "SAPLitmos",
+    "firstPublishDate": "2026-05-06",
+    "providers": [
+        "Scenic Security"
+    ],
+    "categories": {
+        "domains": [
+            "Security - Network"
+        ]
+    },
+    "support": {
+        "name": "Michael Ross",
+        "email": "security@scenic.group",
+        "tier": "Community"
+    }
+}

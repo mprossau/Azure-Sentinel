@@ -1,0 +1,161 @@
+[
+	{
+		"type": "Microsoft.SecurityInsights/dataConnectors",
+		"apiVersion": "2025-09-01",
+		"name": "SAPLitmosLogin",
+		"location": "{{location}}",
+		"kind": "RestApiPoller",
+		"properties": {
+			"connectorDefinitionName": "SAPLitmosScenicAcademyCCFDefn",
+			"dataType": "SAPLitmosLogin_CL",
+			"auth": {
+				"type": "APIKey",
+				"ApiKey": "{{apiKey}}",
+				"ApiKeyName": "apikey",
+				"ApiKeyIdentifier": ""
+			},
+			"request": {
+				"apiEndpoint": "https://api.litmos.com/v1.svc/org/activities/login",
+				"rateLimitQPS": 20,
+				"queryWindowInMin": 10,
+				"httpMethod": "Get",
+				"queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+				"retryCount": 2,
+				"queryParameters": {
+					"source": "scenicacademy",
+					"limit": "100"
+				},
+				"headers": {
+					"Accept": "application/xml",
+					"User-Agent": "Scuba"
+				},
+				"StartTimeAttributeName": "since",
+				"EndTimeAttributeName": "to"
+			},
+			"paging": {
+				"pagingType": "Offset",
+				"pageSizeParameterName": "limit",
+				"pageSize": 100,
+				"OffsetParaName": "start",
+				"PagingInfoPlacement": "QueryString"
+			},
+			"response": {
+				"format": "xml",
+				"EventsJsonPaths": [
+					"$.LoginActivitys.LoginActivity"
+				]
+			},
+			"dcrConfig": {
+				"streamName": "Custom-SAPLitmosLogin",
+				"dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+				"dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
+			}
+		}
+	},
+	{
+		"type": "Microsoft.SecurityInsights/dataConnectors",
+		"apiVersion": "2025-09-01",
+		"name": "SAPLitmosSettings",
+		"location": "{{location}}",
+		"kind": "RestApiPoller",
+		"properties": {
+			"connectorDefinitionName": "SAPLitmosScenicAcademyCCFDefn",
+			"dataType": "SAPLitmosSettings_CL",
+			"auth": {
+				"type": "APIKey",
+				"ApiKey": "{{apiKey}}",
+				"ApiKeyName": "apikey",
+				"ApiKeyIdentifier": ""
+			},
+			"request": {
+				"apiEndpoint": "https://api.litmos.com/v1.svc/org/activities/settings",
+				"rateLimitQPS": 20,
+				"queryWindowInMin": 10,
+				"httpMethod": "Get",
+				"queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+				"retryCount": 2,
+				"queryParameters": {
+					"source": "scenicacademy",
+					"limit": "100"
+				},
+				"headers": {
+					"Accept": "application/xml",
+					"User-Agent": "Scuba"
+				},
+				"StartTimeAttributeName": "since",
+				"EndTimeAttributeName": "to"
+			},
+			"paging": {
+				"pagingType": "Offset",
+				"pageSizeParameterName": "limit",
+				"pageSize": 100,
+				"OffsetParaName": "start",
+				"PagingInfoPlacement": "QueryString"
+			},
+			"response": {
+				"format": "xml",
+				"EventsJsonPaths": [
+					"$.SettingsActivitys.SettingsActivity"
+				]
+			},
+			"dcrConfig": {
+				"streamName": "Custom-SAPLitmosSettings",
+				"dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+				"dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
+			}
+		}
+	},
+	{
+		"type": "Microsoft.SecurityInsights/dataConnectors",
+		"apiVersion": "2025-09-01",
+		"name": "SAPLitmosUserProfile",
+		"location": "{{location}}",
+		"kind": "RestApiPoller",
+		"properties": {
+			"connectorDefinitionName": "SAPLitmosScenicAcademyCCFDefn",
+			"dataType": "SAPLitmosUserProfile_CL",
+			"auth": {
+				"type": "APIKey",
+				"ApiKey": "{{apiKey}}",
+				"ApiKeyName": "apikey",
+				"ApiKeyIdentifier": ""
+			},
+			"request": {
+				"apiEndpoint": "https://api.litmos.com/v1.svc/org/activities/userprofile",
+				"rateLimitQPS": 20,
+				"queryWindowInMin": 10,
+				"httpMethod": "Get",
+				"queryTimeFormat": "yyyy-MM-dd HH:mm:ss",
+				"retryCount": 2,
+				"queryParameters": {
+					"source": "scenicacademy",
+					"limit": "100"
+				},
+				"headers": {
+					"Accept": "application/xml",
+					"User-Agent": "Scuba"
+				},
+				"StartTimeAttributeName": "since",
+				"EndTimeAttributeName": "to"
+			},
+			"paging": {
+				"pagingType": "Offset",
+				"pageSizeParameterName": "limit",
+				"pageSize": 100,
+				"OffsetParaName": "start",
+				"PagingInfoPlacement": "QueryString"
+			},
+			"response": {
+				"format": "xml",
+				"EventsJsonPaths": [
+					"$.UserProfileActivitys.UserProfileActivity"
+				]
+			},
+			"dcrConfig": {
+				"streamName": "Custom-SAPLitmosUserProfile",
+				"dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+				"dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
+			}
+		}
+	}
+]

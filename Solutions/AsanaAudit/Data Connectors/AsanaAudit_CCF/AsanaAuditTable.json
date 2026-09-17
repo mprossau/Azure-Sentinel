@@ -1,0 +1,129 @@
+[
+    {
+        "name": "Custom-AsanaAudit_CL",
+        "apiVersion": "2025-02-01",
+        "type": "Microsoft.OperationalInsights/workspaces/tables",
+        "properties": {
+            "schema": {
+                "name": "Custom-AsanaAudit_CL",
+                "columns": [
+                    {
+                        "displayName": "TimeGenerated",
+                        "name": "TimeGenerated",
+                        "type": "datetime"
+                    },
+                    {
+                        "name": "gid",
+                        "type": "string",
+                        "description": "Globally unique identifier of the AuditLogEvent."
+                    },
+                    {
+                        "name": "event_type",
+                        "type": "string",
+                        "description": "The type of the event."
+                    },
+                    {
+                        "name": "event_category",
+                        "type": "string",
+                        "description": "The category that this event_type belongs to."
+                    },
+                    {
+                        "name": "actor",
+                        "type": "dynamic",
+                        "description": "The entity that triggered the event. Will typically be a user."
+                    },
+                    {
+                        "name": "resource",
+                        "type": "dynamic",
+                        "description": "The primary object that was affected by this event."
+                    },
+                    {
+                        "name": "details",
+                        "type": "dynamic",
+                        "description": "Event specific details."
+                    },
+                    {
+                        "name": "context",
+                        "type": "dynamic",
+                        "description": "The context from which this event originated."
+                    },
+                    {
+                        "name": "ActorType",
+                        "type": "string",
+                        "description": "The type of actor. Can be one of user, asana, asana_support, anonymous, or external_administrator."
+                    },
+                    {
+                        "name": "ActorEmail",
+                        "type": "string",
+                        "description": "The email of the actor, if it is a user."
+                    },
+                    {
+                        "name": "ActorGid",
+                        "type": "string",
+                        "description": "Globally unique identifier of the actor, if it is a user."
+                    },
+                    {
+                        "name": "ActorName",
+                        "type": "string",
+                        "description": "The name of the actor, if it is a user."
+                    },
+                    {
+                        "name": "ApiAuthenticationMethod",
+                        "type": "string",
+                        "description": "The authentication method used in the context of an API request. Only present if the context_type is api. Can be one of cookie, oauth, personal_access_token, or service_account."
+                    },
+                    {
+                        "name": "SrcIpAddr",
+                        "type": "string",
+                        "description": "The IP address of the client that initiated the event, if applicable."
+                    },
+                    {
+                        "name": "ContextType",
+                        "type": "string",
+                        "description": "The type of context. Can be one of web, desktop, mobile, asana_support, asana, email, or api."
+                    },
+                    {
+                        "name": "UserAgent",
+                        "type": "string",
+                        "description": "The user agent of the client that initiated the event, if applicable."
+                    },
+                    {
+                        "name": "OauthAppName",
+                        "type": "string",
+                        "description": "The name of the OAuth App that initiated the event. Only present if the api_authentication_method is oauth."
+                    },
+                    {
+                        "name": "RuleName",
+                        "type": "string",
+                        "description": "The name of the automation rule that initiated the event."
+                    },
+                    {
+                        "name": "ResourceEmail",
+                        "type": "string",
+                        "description": "The email of the resource, if applicable."
+                    },
+                    {
+                        "name": "ResourceGid",
+                        "type": "string",
+                        "description": "Globally unique identifier of the resource."
+                    },
+                    {
+                        "name": "ResourceName",
+                        "type": "string",
+                        "description": "The name of the resource."
+                    },
+                    {
+                        "name": "ResourceSubType",
+                        "type": "string",
+                        "description": "The subtype of resource. Most resources will not have a subtype."
+                    },
+                    {
+                        "name": "ResourceType",
+                        "type": "string",
+                        "description": "The type of resource."
+                    }
+                ]
+            }
+        }
+    }
+]

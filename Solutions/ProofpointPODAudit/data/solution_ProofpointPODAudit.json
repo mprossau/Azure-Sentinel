@@ -1,0 +1,13 @@
+{
+    "Name": "ProofpointPODAudit",
+    "Author": "Michael Ross",
+    "Logo": "<img src=\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Logos/PFPTLogo.svg\" width=\"75px\" height=\"75px\">",
+    "Description": "Codeless connector framework poller for Proofpoint POD Audit logs",
+    "Data Connectors": [
+        "Data Connectors/ProofPointAudit_CCF/connectorDefinition.json"
+    ],
+    "BasePath": "C:\\Users\\Michael.Ross\\Downloads\\Azure-Sentinel\\Solutions\\ProofpointPODAudit",
+    "Version": "3.0.0",
+    "Metadata": "SolutionMetadata.json",
+    "TemplateSpec": false
+}

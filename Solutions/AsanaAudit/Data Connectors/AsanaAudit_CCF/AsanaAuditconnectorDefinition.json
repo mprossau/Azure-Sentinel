@@ -1,0 +1,118 @@
+{
+    "name": "AsanaAuditDefinition",
+    "apiVersion": "2025-09-01",
+    "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+    "location": "{{location}}",
+    "kind": "Customizable",
+    "properties": {
+        "connectorUiConfig": {
+            "title": "Asana Audit via CCF",
+            "publisher": "Microsoft",
+            "descriptionMarkdown": "Collection Asana audit logs",
+            "graphQueriesTableName": "AsanaAudit_CL",
+            "graphQueries": [
+                {
+                    "metricName": "Total data received",
+                    "legend": "Asana Audit Events",
+                    "baseQuery": "{{graphQueriesTableName}}"
+                }
+            ],
+            "sampleQueries": [
+                {
+                    "description": "All Asana audit logs",
+                    "query": "{{graphQueriesTableName}}\n| sort by TimeGenerated desc"
+                }
+            ],
+            "dataTypes": [
+                {
+                    "name": "{{graphQueriesTableName}}",
+                    "lastDataReceivedQuery": "{{graphQueriesTableName}}|summarize Time = max  (TimeGenerated)\n|where isnotempty(Time)"
+                }
+            ],
+            "connectivityCriteria": [
+                {
+                    "type": "HasDataConnectors"
+                }
+            ],
+            "availability": {
+                "isPreview": false
+            },
+            "permissions": {
+                "resourceProvider": [
+                    {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "Read and Write permissions are required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                            "write": true,
+                            "read": true,
+                            "delete": true
+                        }
+                    }
+                ],
+                "customs": [
+                    {
+                        "name": "Asana Audit API access",
+                        "description": "An API key that can read Asana audit logs"
+                    }
+                ]
+            },
+            "instructionSteps": [
+                {
+                    "description": "To enable the Asana connector for Microsoft Sentinel, click to add an organization, fill the form with the Asana credentials and click to Connect. \n ",
+                    "instructions": [
+                        {
+                            "type": "DataConnectorsGrid",
+                            "parameters": {
+                                "mapping": [
+                                    {
+                                        "columnName": "Asana organization URL",
+                                        "columnValue": "properties.request.apiEndpoint"
+                                    }
+                                ],
+                                "menuItems": [
+                                    "DeleteConnector"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "ContextPane",
+                            "parameters": {
+                                "isPrimary": true,
+                                "label": "Add organization",
+                                "title": "Add organization",
+                                "subtitle": "Add Asana organization",
+                                "contextPaneType": "DataConnectorsContextPane",
+                                "instructionSteps": [
+                                    {
+                                        "instructions": [
+                                            {
+                                                "type": "Textbox",
+                                                "parameters": {
+                                                    "label": "Asana Workspace gid",
+                                                    "placeholder": "Workspace gid",
+                                                    "type": "string",
+                                                    "name": "AsanaWorkspaceGID"
+                                                }
+                                            },
+                                            {
+                                                "type": "Textbox",
+                                                "parameters": {
+                                                    "label": "API Token",
+                                                    "placeholder": "API Token",
+                                                    "type": "password",
+                                                    "name": "apikey"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

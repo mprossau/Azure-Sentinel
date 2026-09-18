@@ -8,6 +8,6 @@
   ],
   "BasePath": "C:\\GitHub\\Azure-Sentinel\\solutions\\Hubspot",
   "Metadata": "SolutionMetadata.json",
-  "Version": "3.0.0",
+  "Version": "3.1.0",
   "TemplateSpec": true
 }

@@ -9,7 +9,7 @@
       "id": "HubspotDefinition",
       "title": "Hubspot (via Codeless Connector Framework)",
       "publisher": "Community",
-      "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot account activity](https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide) into Microsoft Sentinel.",
+      "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot account activity](https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide) into Microsoft Sentinel. This connector can be added multiple times, once per Hubspot portal (e.g. Production, Sandbox), and each instance's events are tagged with an EnvironmentName column so they can be filtered or aggregated per portal in the shared tables.",
       "graphQueriesTableName": "HubspotAuditLogs_CL",
       "graphQueries": [
         {
@@ -27,16 +27,20 @@
         {
           "description": "Get Sample Events",
           "query": "{{graphQueriesTableName}}\n | take 10"
+        },
+        {
+          "description": "Get Sample Events by environment",
+          "query": "{{graphQueriesTableName}}\n | summarize count() by EnvironmentName"
         }
       ],
       "dataTypes": [
         {
           "name": "{{graphQueriesTableName}}",
-          "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+          "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
         },
         {
           "name": "HubspotSecurityActivity_CL",
-          "lastDataReceivedQuery": "HubspotSecurityActivity_CL\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+          "lastDataReceivedQuery": "HubspotSecurityActivity_CL\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
         }
       ],
       "connectivityCriteria": [
@@ -67,34 +71,72 @@
           {
             "name": "Hubspot account-info.security.read API scope",
             "description": "https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide#scope-requirements"
+          },
+          {
+            "name": "One Private App token per environment",
+            "description": "Create a separate HubSpot Private App access token inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
           }
         ]
       },
       "instructionSteps": [
         {
-          "description": "Connect using Hubspot Private App. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app",
+          "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Private App access token generated inside that portal. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
           "instructions": [
             {
-              "type": "Textbox",
+              "type": "DataConnectorsGrid",
               "parameters": {
-                "label": "Access token",
-                "placeholder": "Enter access token",
-                "type": "password",
-                "name": "apikey",
-                "validations": {
-                  "required": true
-                }
+                "mapping": [
+                  {
+                    "columnName": "Environment",
+                    "columnValue": "properties.addOnAttributes.EnvironmentName"
+                  }
+                ],
+                "menuItems": [
+                  "DeleteConnector"
+                ]
               }
             },
             {
-              "type": "ConnectionToggleButton",
+              "type": "ContextPane",
               "parameters": {
-                "connectLabel": "Connect",
-                "name": "Connect"
+                "isPrimary": true,
+                "label": "Add environment",
+                "title": "Add environment",
+                "subtitle": "Add environment",
+                "contextPaneType": "DataConnectorsContextPane",
+                "instructionSteps": [
+                  {
+                    "instructions": [
+                      {
+                        "type": "Textbox",
+                        "parameters": {
+                          "label": "Environment name",
+                          "placeholder": "e.g. Production or Sandbox",
+                          "type": "text",
+                          "name": "environmentname",
+                          "validations": {
+                            "required": true
+                          }
+                        }
+                      },
+                      {
+                        "type": "Textbox",
+                        "parameters": {
+                          "label": "Access token",
+                          "placeholder": "Enter access token",
+                          "type": "password",
+                          "name": "apikey",
+                          "validations": {
+                            "required": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
               }
             }
-          ],
-          "title": "Connect Hubspot to Microsoft Sentinel"
+          ]
         }
       ]
     }

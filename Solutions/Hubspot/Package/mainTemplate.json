@@ -47,17 +47,18 @@
     "email": "tom.plant@devicie.com",
     "_email": "[variables('email')]",
     "_solutionName": "Hubspot",
-    "_solutionVersion": "3.0.0",
+    "_solutionVersion": "3.1.0",
     "solutionId": "microsoftsentinelcommunity.azure-sentinel-solution-hubspot",
     "_solutionId": "[variables('solutionId')]",
     "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
-    "dataConnectorCCPVersion": "1.0.0",
+    "dataConnectorCCPVersion": "3.1.0",
     "_dataConnectorContentIdConnectorDefinition1": "HubspotDefinition",
     "dataConnectorTemplateNameConnectorDefinition1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition1')))]",
     "_dataConnectorContentIdConnections1": "HubspotDefinitionConnections",
     "dataConnectorTemplateNameConnections1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnections1')))]",
     "dataCollectionEndpointId1": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]",
     "blanks": "[replace('b', 'b', '')]",
+    "TemplateEmptyObject": "[json('{}')]",
     "_solutioncontentProductId": "[concat(take(variables('_solutionId'),50),'-','sl','-', uniqueString(concat(variables('_solutionId'),'-','Solution','-',variables('_solutionId'),'-', variables('_solutionVersion'))))]"
   },
   "resources": [
@@ -90,7 +91,7 @@
                   "id": "HubspotDefinition",
                   "title": "Hubspot (via Codeless Connector Framework)",
                   "publisher": "Community",
-                  "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot account activity](https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide) into Microsoft Sentinel.",
+                  "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot account activity](https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide) into Microsoft Sentinel. This connector can be added multiple times, once per Hubspot portal (e.g. Production, Sandbox), and each instance's events are tagged with an EnvironmentName column so they can be filtered or aggregated per portal in the shared tables.",
                   "graphQueriesTableName": "HubspotAuditLogs_CL",
                   "graphQueries": [
                     {
@@ -108,16 +109,20 @@
                     {
                       "description": "Get Sample Events",
                       "query": "{{graphQueriesTableName}}\n | take 10"
+                    },
+                    {
+                      "description": "Get Sample Events by environment",
+                      "query": "{{graphQueriesTableName}}\n | summarize count() by EnvironmentName"
                     }
                   ],
                   "dataTypes": [
                     {
                       "name": "{{graphQueriesTableName}}",
-                      "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+                      "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
                     },
                     {
                       "name": "HubspotSecurityActivity_CL",
-                      "lastDataReceivedQuery": "HubspotSecurityActivity_CL\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+                      "lastDataReceivedQuery": "HubspotSecurityActivity_CL\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
                     }
                   ],
                   "connectivityCriteria": [
@@ -148,34 +153,72 @@
                       {
                         "name": "Hubspot account-info.security.read API scope",
                         "description": "https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide#scope-requirements"
+                      },
+                      {
+                        "name": "One Private App token per environment",
+                        "description": "Create a separate HubSpot Private App access token inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
                       }
                     ]
                   },
                   "instructionSteps": [
                     {
-                      "description": "Connect using Hubspot Private App. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app",
+                      "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Private App access token generated inside that portal. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
                       "instructions": [
                         {
-                          "type": "Textbox",
+                          "type": "DataConnectorsGrid",
                           "parameters": {
-                            "label": "Access token",
-                            "placeholder": "Enter access token",
-                            "type": "password",
-                            "name": "apikey",
-                            "validations": {
-                              "required": true
-                            }
+                            "mapping": [
+                              {
+                                "columnName": "Environment",
+                                "columnValue": "properties.addOnAttributes.EnvironmentName"
+                              }
+                            ],
+                            "menuItems": [
+                              "DeleteConnector"
+                            ]
                           }
                         },
                         {
-                          "type": "ConnectionToggleButton",
+                          "type": "ContextPane",
                           "parameters": {
-                            "connectLabel": "Connect",
-                            "name": "Connect"
+                            "isPrimary": true,
+                            "label": "Add environment",
+                            "title": "Add environment",
+                            "subtitle": "Add environment",
+                            "contextPaneType": "DataConnectorsContextPane",
+                            "instructionSteps": [
+                              {
+                                "instructions": [
+                                  {
+                                    "type": "Textbox",
+                                    "parameters": {
+                                      "label": "Environment name",
+                                      "placeholder": "e.g. Production or Sandbox",
+                                      "type": "text",
+                                      "name": "environmentname",
+                                      "validations": {
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "Textbox",
+                                    "parameters": {
+                                      "label": "Access token",
+                                      "placeholder": "Enter access token",
+                                      "type": "password",
+                                      "name": "apikey",
+                                      "validations": {
+                                        "required": true
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
                           }
                         }
-                      ],
-                      "title": "Connect Hubspot to Microsoft Sentinel"
+                      ]
                     }
                   ]
                 }
@@ -217,7 +260,7 @@
               }
             },
             {
-              "name": "HubspotDCR",
+              "name": "hubspot-ccp",
               "apiVersion": "2022-06-01",
               "type": "Microsoft.Insights/dataCollectionRules",
               "location": "[parameters('workspace-location')]",
@@ -253,6 +296,10 @@
                       },
                       {
                         "name": "targetObjectId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "EnvironmentName",
                         "type": "string"
                       }
                     ]
@@ -302,10 +349,15 @@
                       {
                         "name": "userId",
                         "type": "int"
+                      },
+                      {
+                        "name": "EnvironmentName",
+                        "type": "string"
                       }
                     ]
                   }
                 },
+                "dataSources": "[variables('TemplateEmptyObject')]",
                 "destinations": {
                   "logAnalytics": [
                     {
@@ -345,44 +397,53 @@
               "location": "[parameters('workspace-location')]",
               "kind": null,
               "properties": {
-                "retentionInDays": 90,
                 "schema": {
                   "name": "HubspotAuditLogs_CL",
-                  "description": "Activity history for user actions related to approvals, content updates, CRM object updates, security activity, and more.",
                   "columns": [
                     {
                       "name": "ActingUser",
-                      "description": "An object containing the user's ID and email address.",
-                      "type": "dynamic"
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "Action",
-                      "description": "The action performed.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "Category",
-                      "description": "The type of user action.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "Id",
-                      "description": "The unique ID of the action event.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "TimeGenerated",
-                      "description": "The timestamp of when the action was performed.",
-                      "type": "datetime"
+                      "type": "datetime",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "SubCategory",
-                      "description": "The subcategory of user action.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "TargetObjectId",
-                      "description": "The ID of the object that the user performed the action on.",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "EnvironmentName",
                       "type": "string"
                     }
                   ]
@@ -396,65 +457,78 @@
               "location": "[parameters('workspace-location')]",
               "kind": null,
               "properties": {
-                "retentionInDays": 90,
                 "schema": {
                   "name": "HubspotSecurityActivity_CL",
-                  "description": "Logs of user actions related to security activity.",
                   "columns": [
                     {
                       "name": "ActingUser",
-                      "description": "The email address of the user associated with the activity.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "CountryCode",
-                      "description": "The country code of the location where the login was attempted.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "TimeGenerated",
-                      "description": "The timestamp of when activity occurred.",
-                      "type": "datetime"
+                      "type": "datetime",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "Id",
-                      "description": "The unique ID of the login event.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "InfoUrl",
-                      "description": "The URL of the page where the activity occurred.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "IpAddress",
-                      "description": "The IP address used for the login attempt.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "Location",
-                      "description": "The location where the login was attempted.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "ObjectId",
-                      "description": "The ID of the object that the activity was performed on.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "RegionCode",
-                      "description": "The region code of the location where the login was attempted.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "EventType",
-                      "description": "The type of activity.",
-                      "type": "string"
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
                     },
                     {
                       "name": "UserId",
-                      "description": "The ID of the user associated with the activity.",
-                      "type": "int"
+                      "type": "int",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "EnvironmentName",
+                      "type": "string"
                     }
                   ]
                 }
@@ -482,7 +556,7 @@
           "id": "HubspotDefinition",
           "title": "Hubspot (via Codeless Connector Framework)",
           "publisher": "Community",
-          "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot account activity](https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide) into Microsoft Sentinel.",
+          "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot account activity](https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide) into Microsoft Sentinel. This connector can be added multiple times, once per Hubspot portal (e.g. Production, Sandbox), and each instance's events are tagged with an EnvironmentName column so they can be filtered or aggregated per portal in the shared tables.",
           "graphQueriesTableName": "HubspotAuditLogs_CL",
           "graphQueries": [
             {
@@ -500,16 +574,20 @@
             {
               "description": "Get Sample Events",
               "query": "{{graphQueriesTableName}}\n | take 10"
+            },
+            {
+              "description": "Get Sample Events by environment",
+              "query": "{{graphQueriesTableName}}\n | summarize count() by EnvironmentName"
             }
           ],
           "dataTypes": [
             {
               "name": "{{graphQueriesTableName}}",
-              "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+              "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
             },
             {
               "name": "HubspotSecurityActivity_CL",
-              "lastDataReceivedQuery": "HubspotSecurityActivity_CL\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated)\n | where isnotempty(Time)"
+              "lastDataReceivedQuery": "HubspotSecurityActivity_CL\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
             }
           ],
           "connectivityCriteria": [
@@ -540,34 +618,72 @@
               {
                 "name": "Hubspot account-info.security.read API scope",
                 "description": "https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide#scope-requirements"
+              },
+              {
+                "name": "One Private App token per environment",
+                "description": "Create a separate HubSpot Private App access token inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
               }
             ]
           },
           "instructionSteps": [
             {
-              "description": "Connect using Hubspot Private App. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app",
+              "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Private App access token generated inside that portal. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
               "instructions": [
                 {
-                  "type": "Textbox",
+                  "type": "DataConnectorsGrid",
                   "parameters": {
-                    "label": "Access token",
-                    "placeholder": "Enter access token",
-                    "type": "password",
-                    "name": "apikey",
-                    "validations": {
-                      "required": true
-                    }
+                    "mapping": [
+                      {
+                        "columnName": "Environment",
+                        "columnValue": "properties.addOnAttributes.EnvironmentName"
+                      }
+                    ],
+                    "menuItems": [
+                      "DeleteConnector"
+                    ]
                   }
                 },
                 {
-                  "type": "ConnectionToggleButton",
+                  "type": "ContextPane",
                   "parameters": {
-                    "connectLabel": "Connect",
-                    "name": "Connect"
+                    "isPrimary": true,
+                    "label": "Add environment",
+                    "title": "Add environment",
+                    "subtitle": "Add environment",
+                    "contextPaneType": "DataConnectorsContextPane",
+                    "instructionSteps": [
+                      {
+                        "instructions": [
+                          {
+                            "type": "Textbox",
+                            "parameters": {
+                              "label": "Environment name",
+                              "placeholder": "e.g. Production or Sandbox",
+                              "type": "text",
+                              "name": "environmentname",
+                              "validations": {
+                                "required": true
+                              }
+                            }
+                          },
+                          {
+                            "type": "Textbox",
+                            "parameters": {
+                              "label": "Access token",
+                              "placeholder": "Enter access token",
+                              "type": "password",
+                              "name": "apikey",
+                              "validations": {
+                                "required": true
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
-              ],
-              "title": "Connect Hubspot to Microsoft Sentinel"
+              ]
             }
           ]
         }
@@ -648,6 +764,11 @@
               },
               "type": "object"
             },
+            "environmentname": {
+              "defaultValue": "environmentname",
+              "type": "securestring",
+              "minLength": 1
+            },
             "apikey": {
               "defaultValue": "apikey",
               "type": "securestring",
@@ -685,7 +806,7 @@
               }
             },
             {
-              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'HubspotAuditLogsPoller', parameters('guidValue'))]",
+              "name": "[[concat(parameters('innerWorkspace'), '/Microsoft.SecurityInsights', '/HubspotAuditLogsPoller_', parameters('environmentname'), parameters('guidValue'))]",
               "apiVersion": "2023-02-01-preview",
               "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
               "location": "[parameters('workspace-location')]",
@@ -697,6 +818,9 @@
                   "streamName": "Custom-HubspotAuditLogs_CL",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
                   "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
+                },
+                "addOnAttributes": {
+                  "EnvironmentName": "[[parameters('environmentname')]"
                 },
                 "auth": {
                   "type": "APIKey",
@@ -755,11 +879,12 @@
                   "pageSize": 100,
                   "nextPageParaName": "after",
                   "nextPageTokenJsonPath": "$.paging.next.after"
-                }
+                },
+                "isActive": true
               }
             },
             {
-              "name": "[[concat(parameters('innerWorkspace'),'/Microsoft.SecurityInsights/', 'HubspotSecurityActivity', parameters('guidValue'))]",
+              "name": "[[concat(parameters('innerWorkspace'), '/Microsoft.SecurityInsights', '/HubspotSecurityActivity_', parameters('environmentname'), parameters('guidValue'))]",
               "apiVersion": "2023-02-01-preview",
               "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
               "location": "[parameters('workspace-location')]",
@@ -771,6 +896,9 @@
                   "streamName": "Custom-HubspotSecurityActivity_CL",
                   "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
                   "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
+                },
+                "addOnAttributes": {
+                  "EnvironmentName": "[[parameters('environmentname')]"
                 },
                 "auth": {
                   "type": "APIKey",
@@ -829,7 +957,8 @@
                   "pageSize": 200,
                   "nextPageParaName": "after",
                   "nextPageTokenJsonPath": "$.paging.next.after"
-                }
+                },
+                "isActive": true
               }
             }
           ]
@@ -848,7 +977,7 @@
       "apiVersion": "2023-04-01-preview",
       "location": "[parameters('workspace-location')]",
       "properties": {
-        "version": "3.0.0",
+        "version": "3.1.0",
         "kind": "Solution",
         "contentSchemaVersion": "3.0.0",
         "displayName": "Hubspot",

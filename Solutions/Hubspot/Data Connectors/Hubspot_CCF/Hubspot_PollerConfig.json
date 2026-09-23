@@ -13,7 +13,8 @@
                 "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
             },
             "addOnAttributes": {
-                "EnvironmentName": "[[parameters('environmentname')]"
+                "EnvironmentName": "[[parameters('environmentname')]",
+                "LogType": "Audit Logs"
             },
             "auth": {
                 "type": "APIKey",
@@ -77,7 +78,8 @@
                 "streamName": "Custom-HubspotSecurityActivity_CL"
             },
             "addOnAttributes": {
-                "EnvironmentName": "[[parameters('environmentname')]"
+                "EnvironmentName": "[[parameters('environmentname')]",
+                "LogType": "Security Logs"
             },
             "auth": {
                 "type": "APIKey",

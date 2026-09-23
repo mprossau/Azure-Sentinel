@@ -155,14 +155,14 @@
                         "description": "https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide#scope-requirements"
                       },
                       {
-                        "name": "One Private App token per environment",
-                        "description": "Create a separate HubSpot Private App access token inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
+                        "name": "One Service Key per environment",
+                        "description": "Create a separate HubSpot Service Key inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
                       }
                     ]
                   },
                   "instructionSteps": [
                     {
-                      "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Private App access token generated inside that portal. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
+                      "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Service Key generated inside that portal. Learn more: https://developers.hubspot.com/blog/hubspot-service-keys-the-right-api-credential-for-data-integrations. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
                       "instructions": [
                         {
                           "type": "DataConnectorsGrid",
@@ -171,6 +171,10 @@
                               {
                                 "columnName": "Environment",
                                 "columnValue": "properties.addOnAttributes.EnvironmentName"
+                              },
+                              {
+                                "columnName": "Log Type",
+                                "columnValue": "properties.addOnAttributes.LogType"
                               }
                             ],
                             "menuItems": [
@@ -204,8 +208,8 @@
                                   {
                                     "type": "Textbox",
                                     "parameters": {
-                                      "label": "Access token",
-                                      "placeholder": "Enter access token",
+                                      "label": "Service key",
+                                      "placeholder": "Service key",
                                       "type": "password",
                                       "name": "apikey",
                                       "validations": {
@@ -620,14 +624,14 @@
                 "description": "https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide#scope-requirements"
               },
               {
-                "name": "One Private App token per environment",
-                "description": "Create a separate HubSpot Private App access token inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
+                "name": "One Service Key per environment",
+                "description": "Create a separate HubSpot Service Key inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the account-info.security.read scope."
               }
             ]
           },
           "instructionSteps": [
             {
-              "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Private App access token generated inside that portal. Learn more: https://developers.hubspot.com/docs/apps/legacy-apps/private-apps/overview#create-a-private-app. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
+              "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Service Key generated inside that portal. Learn more: https://developers.hubspot.com/blog/hubspot-service-keys-the-right-api-credential-for-data-integrations. Repeat this connector setup once per portal to ingest from both Production and Sandbox.",
               "instructions": [
                 {
                   "type": "DataConnectorsGrid",
@@ -636,6 +640,10 @@
                       {
                         "columnName": "Environment",
                         "columnValue": "properties.addOnAttributes.EnvironmentName"
+                      },
+                      {
+                        "columnName": "Log Type",
+                        "columnValue": "properties.addOnAttributes.LogType"
                       }
                     ],
                     "menuItems": [
@@ -669,8 +677,8 @@
                           {
                             "type": "Textbox",
                             "parameters": {
-                              "label": "Access token",
-                              "placeholder": "Enter access token",
+                              "label": "Service key",
+                              "placeholder": "Service key",
                               "type": "password",
                               "name": "apikey",
                               "validations": {
@@ -820,7 +828,8 @@
                   "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
                 },
                 "addOnAttributes": {
-                  "EnvironmentName": "[[parameters('environmentname')]"
+                  "EnvironmentName": "[[parameters('environmentname')]",
+                  "LogType": "Audit Logs"
                 },
                 "auth": {
                   "type": "APIKey",
@@ -898,7 +907,8 @@
                   "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
                 },
                 "addOnAttributes": {
-                  "EnvironmentName": "[[parameters('environmentname')]"
+                  "EnvironmentName": "[[parameters('environmentname')]",
+                  "LogType": "Security Logs"
                 },
                 "auth": {
                   "type": "APIKey",

@@ -1,7 +1,7 @@
 Parser:
   Title: Authentication ASIM parser
-  Version: '0.2.20'
-  LastUpdated: Sep 14, 2026
+  Version: '0.2.25'
+  LastUpdated: Oct 05, 2026
 Product:
   Name: Source agnostic
 Normalization:
@@ -51,6 +51,7 @@ ParserQuery: |
     ASimAuthenticationSu  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationSu' in (DisabledParsers) )),
     ASimAuthenticationSudo (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationSudo' in (DisabledParsers) )),
     ASimAuthenticationSalesforceSC  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationSalesforceSC'  in (DisabledParsers) ), pack=pack),
+    ASimAuthenticationSalesforceLoginHistory  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationSalesforceLoginHistory' in (DisabledParsers) ), pack=pack),
     ASimAuthenticationVectraXDRAudit  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationVectraXDRAudit' in (DisabledParsers) )),
     ASimAuthenticationSentinelOne  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationSentinelOne' in (DisabledParsers) )),
     ASimAuthenticationGoogleWorkspace (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationGoogleWorkspace' in (DisabledParsers) )),
@@ -65,7 +66,11 @@ ParserQuery: |
     ASimAuthenticationPaloAltoGlobalProtect  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationPaloAltoGlobalProtect' in (DisabledParsers) ), pack=pack),
     ASimAuthenticationVMwareESXi  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationVMwareESXi' in (DisabledParsers)), pack=pack),
     ASimAuthenticationPaloAltoPrismaCloud  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationPaloAltoPrismaCloud' in (DisabledParsers)), pack=pack),
-    ASimAuthenticationAlibabaCloudActionTrail  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationAlibabaCloudActionTrail' in (DisabledParsers)), pack=pack)
+    ASimAuthenticationAlibabaCloudActionTrail  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationAlibabaCloudActionTrail' in (DisabledParsers)), pack=pack),
+    ASimAuthenticationWizCloud  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationWizCloud' in (DisabledParsers)), pack=pack),
+    ASimAuthenticationOracleOCI  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationOracleOCI' in (DisabledParsers)), pack=pack),
+    ASimAuthenticationArubaNetworksClearPass  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationArubaNetworksClearPass' in (DisabledParsers)), pack=pack),
+    ASimAuthenticationCyberArkAudit  (ASimAuthenticationDisabled or ('ExcludeASimAuthenticationCyberArkAudit' in (DisabledParsers)), pack=pack)
 Parsers:
  - _Im_Authentication_Empty
  - _ASim_Authentication_AADManagedIdentitySignInLogs
@@ -104,9 +109,14 @@ Parsers:
  - _ASim_Authentication_GoogleWorkspace
  - _ASim_Authentication_GoogleWorkspaceLogins
  - _ASim_Authentication_SalesforceSC
+ - _ASim_Authentication_SalesforceLoginHistory
  - _ASim_Authentication_IllumioSaaSCore
  - _ASim_Authentication_Native
  - _ASim_Authentication_VMwareESXi
  - _ASim_Authentication_PaloAltoGlobalProtect
  - _ASim_Authentication_PaloAltoPrismaCloud
  - _ASim_Authentication_AlibabaCloudActionTrail
+ - _ASim_Authentication_WizCloud
+ - _ASim_Authentication_OracleOCI
+ - _ASim_Authentication_ArubaNetworksClearPass
+ - _ASim_Authentication_CyberArkAudit

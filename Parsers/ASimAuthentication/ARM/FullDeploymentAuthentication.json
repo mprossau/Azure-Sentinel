@@ -161,6 +161,26 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
+      "name": "linkedASimAuthenticationArubaNetworksClearPass",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationArubaNetworksClearPass/ASimAuthenticationArubaNetworksClearPass.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "linkedASimAuthenticationBarracudaWAF",
       "properties": {
         "mode": "Incremental",
@@ -346,6 +366,26 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationCrowdStrikeFalconHost/ASimAuthenticationCrowdStrikeFalconHost.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "linkedASimAuthenticationCyberArkAudit",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationCyberArkAudit/ASimAuthenticationCyberArkAudit.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -581,6 +621,26 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
+      "name": "linkedASimAuthenticationOracleOCI",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationOracleOCI/ASimAuthenticationOracleOCI.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "linkedASimAuthenticationPaloAltoCortexDataLake",
       "properties": {
         "mode": "Incremental",
@@ -666,6 +726,26 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationPostgreSQL/ASimAuthenticationPostgreSQL.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "linkedASimAuthenticationSalesforceLoginHistory",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationSalesforceLoginHistory/ASimAuthenticationSalesforceLoginHistory.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -861,6 +941,26 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
+      "name": "linkedASimAuthenticationWizCloud",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/ASimAuthenticationWizCloud/ASimAuthenticationWizCloud.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "linkedimAuthentication",
       "properties": {
         "mode": "Incremental",
@@ -986,6 +1086,26 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationAlibabaCloudActionTrail/vimAuthenticationAlibabaCloudActionTrail.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "linkedvimAuthenticationArubaNetworksClearPass",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationArubaNetworksClearPass/vimAuthenticationArubaNetworksClearPass.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -1186,6 +1306,26 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationCrowdStrikeFalconHost/vimAuthenticationCrowdStrikeFalconHost.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "linkedvimAuthenticationCyberArkAudit",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationCyberArkAudit/vimAuthenticationCyberArkAudit.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -1441,6 +1581,26 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
+      "name": "linkedvimAuthenticationOracleOCI",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationOracleOCI/vimAuthenticationOracleOCI.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "linkedvimAuthenticationPaloAltoCortexDataLake",
       "properties": {
         "mode": "Incremental",
@@ -1526,6 +1686,26 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationPostgreSQL/vimAuthenticationPostgreSQL.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "linkedvimAuthenticationSalesforceLoginHistory",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationSalesforceLoginHistory/vimAuthenticationSalesforceLoginHistory.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -1706,6 +1886,26 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationVectraXDRAudit/vimAuthenticationVectraXDRAudit.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Workspace": {
+            "value": "[parameters('Workspace')]"
+          },
+          "WorkspaceRegion": {
+            "value": "[parameters('WorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "linkedvimAuthenticationWizCloud",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Parsers/ASimAuthentication/ARM/vimAuthenticationWizCloud/vimAuthenticationWizCloud.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

@@ -185,6 +185,7 @@
   "SalesforceServiceCloudCCPDefinition",
   "SAP",
   "SAPBTPAuditEvents",
+  "SAPBTPAVL",
   "SAPLogServ",
   "SAPETDAlerts",
   "SecurityEvents",
@@ -278,6 +279,7 @@
   "MicrosoftDefenderForCloudTenantBased",
   "RidgeBotDataConnector",
   "ValenceSecurity",
+  "ValenceSecurityCcfPush",
   "HVPollingIDAzureFunctions",
   "CBSPollingIDAzureFunctions",
   "AzureCloudNGFWByPaloAltoNetworks",
@@ -294,6 +296,8 @@
   "NetskopeDataConnector",
   "NetskopeWebTransactionsDataConnector",
   "NetskopeAlertEventsConnector",
+  "NetskopeAlertsEvents",
+  "NetskopeClientStatus",
   "CefAma",
   "WindowsFirewallAma",
   "1Password",
@@ -358,5 +362,6 @@
   "UniqkeyEventsConnector",
   "StratoSecurePush",
   "CatoNetworksEventsPush",
-  "RecordedFuture"
+  "RecordedFuture",
+  "DelineaPlatformConnector"
 ]

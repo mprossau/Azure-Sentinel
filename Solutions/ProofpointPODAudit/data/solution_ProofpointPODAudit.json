@@ -7,7 +7,7 @@
         "Data Connectors/ProofPointAudit_CCF/connectorDefinition.json"
     ],
     "BasePath": "C:\\Users\\Michael.Ross\\Downloads\\Azure-Sentinel\\Solutions\\ProofpointPODAudit",
-    "Version": "3.0.0",
+    "Version": "3.1.0",
     "Metadata": "SolutionMetadata.json",
     "TemplateSpec": false
 }

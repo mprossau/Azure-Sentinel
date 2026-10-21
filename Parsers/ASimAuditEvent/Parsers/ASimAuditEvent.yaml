@@ -1,12 +1,12 @@
 Parser:
   Title: Audit event ASIM parser
-  Version: '0.1.8'
-  LastUpdated: Sep 14, 2026
+  Version: '0.1.10'
+  LastUpdated: Oct 5, 2026
 Product:
   Name: Source agnostic
 Normalization:
   Schema: AuditEvent
-  Version: '0.1'
+  Version: '0.1.0'
 References:
 - Title: ASIM Audit Event Schema
   Link: https://aka.ms/ASimAuditEventDoc
@@ -39,6 +39,7 @@ Parsers:
   - _ASim_AuditEvent_Native
   - _ASim_AuditEvent_SQLSecurityAudit
   - _ASim_AuditEvent_AlibabaCloudActionTrail
+  - _ASim_AuditEvent_OracleOCI
 ParserParams:
   - Name: pack
     Type: bool
@@ -68,4 +69,5 @@ ParserQuery: |
     ASimAuditEventAWSCloudTrail(BuiltInDisabled or ('ExcludeASimAuditEventAWSCloudTrail' in (DisabledParsers)), pack=pack),
     ASimAuditEventAzureKeyVault(BuiltInDisabled or ('ExcludeASimAuditEventAzureKeyVault' in (DisabledParsers))),
     ASimAuditEventSQLSecurityAudit(BuiltInDisabled or ('ExcludeASimAuditEventSQLSecurityAudit' in (DisabledParsers)), pack=pack),
-    ASimAuditEventAlibabaCloudActionTrail(BuiltInDisabled or ('ExcludeASimAuditEventAlibabaCloudActionTrail' in (DisabledParsers)), pack=pack)
+    ASimAuditEventAlibabaCloudActionTrail(BuiltInDisabled or ('ExcludeASimAuditEventAlibabaCloudActionTrail' in (DisabledParsers)), pack=pack),
+    ASimAuditEventOracleOCI(BuiltInDisabled or ('ExcludeASimAuditEventOracleOCI' in (DisabledParsers)), pack=pack)

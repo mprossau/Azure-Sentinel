@@ -1,0 +1,70 @@
+[
+    {
+        "name": "{{innerWorkspace}}/Microsoft.SecurityInsights/HubspotEmailEventsPoller_{{environmentname}}",
+        "apiVersion": "2025-03-01",
+        "type": "Microsoft.SecurityInsights/dataConnectors",
+        "kind": "RestApiPoller",
+        "properties": {
+            "connectorDefinitionName": "HubspotEmailEventsDefinition",
+            "dataType": "HubspotEmailEvents_CL",
+            "dcrConfig": {
+                "streamName": "Custom-HubspotEmailEvents_CL",
+                "dataCollectionEndpoint": "{{dataCollectionEndpoint}}",
+                "dataCollectionRuleImmutableId": "{{dataCollectionRuleImmutableId}}"
+            },
+            "addOnAttributes": {
+                "EnvironmentName": "[[parameters('environmentname')]",
+                "LogType": "Email Events"
+            },
+            "auth": {
+                "type": "APIKey",
+                "ApiKey": "{{apikey}}",
+                "ApiKeyName": "Authorization",
+                "ApiKeyIdentifier": "Bearer"
+            },
+            "request": {
+                "httpMethod": "GET",
+                "apiEndpoint": "https://api.hubapi.com/email/public/v1/events",
+                "queryWindowInMin": 5,
+                "queryTimeFormat": "UnixTimestampInMills",
+                "startTimeAttributeName": "startTimestamp",
+                "endTimeAttributeName": "endTimestamp",
+                "headers": {
+                    "Accept": "application/json",
+                    "User-Agent": "Scuba"
+                },
+                "queryParameters": {
+                    "limit": "100"
+                },
+                "rateLimitConfig": {
+                    "evaluation": {
+                        "checkMode": "OnlyWhen429"
+                    },
+                    "extraction": {
+                        "source": "CustomHeaders",
+                        "headers": {
+                            "limit": { "name": "X-HubSpot-RateLimit-Max", "format": "Integer" },
+                            "remaining": { "name": "X-HubSpot-RateLimit-Remaining", "format": "Integer" },
+                            "reset": { "name": "X-HubSpot-RateLimit-Interval-Milliseconds", "format": "UnixTimeMilliseconds" }
+                        }
+                    },
+                    "retryStrategy": {
+                        "useResetOrRetryAfterHeaders": true
+                    }
+                }
+            },
+            "response": {
+                "eventsJsonPaths": ["$.events"],
+                "format": "json"
+            },
+            "paging": {
+                "pagingType": "NextPageToken",
+                "pageSize": 1000,
+                "nextPageParaName": "offset",
+                "nextPageTokenJsonPath": "$.offset",
+                "hasNextFlagJsonPath": "$.hasMore"
+            },
+            "isActive": true
+        }
+    }
+]

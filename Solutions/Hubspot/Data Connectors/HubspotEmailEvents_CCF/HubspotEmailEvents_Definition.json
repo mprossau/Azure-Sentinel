@@ -1,0 +1,139 @@
+{
+  "type": "Microsoft.SecurityInsights/dataConnectorDefinitions",
+  "apiVersion": "2025-07-01-preview",
+  "name": "HubspotEmailEventsDefinition",
+  "location": "{{location}}",
+  "kind": "Customizable",
+  "properties": {
+    "connectorUiConfig": {
+      "id": "HubspotEmailEventsDefinition",
+      "title": "Hubspot Email Events (via Codeless Connector Framework)",
+      "publisher": "Community",
+      "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot marketing email events](https://developers.hubspot.com/docs/api-reference/legacy/reporting/email-analytics/events/get-email-public-v1-events) (sent, delivered, opened, clicked, bounced, etc.) into Microsoft Sentinel. This connector can be added multiple times, once per Hubspot portal (e.g. Production, Sandbox), and each instance's events are tagged with an EnvironmentName column so they can be filtered or aggregated per portal in the shared table.",
+      "graphQueriesTableName": "HubspotEmailEvents_CL",
+      "graphQueries": [
+        {
+          "metricName": "Total events received",
+          "legend": "Email events",
+          "baseQuery": "{{graphQueriesTableName}}"
+        }
+      ],
+      "sampleQueries": [
+        {
+          "description": "Get Sample Events",
+          "query": "{{graphQueriesTableName}}\n | take 10"
+        },
+        {
+          "description": "Get Events by type and environment",
+          "query": "{{graphQueriesTableName}}\n | summarize count() by EventType, EnvironmentName"
+        }
+      ],
+      "dataTypes": [
+        {
+          "name": "{{graphQueriesTableName}}",
+          "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
+        }
+      ],
+      "connectivityCriteria": [
+        {
+          "type": "HasDataConnectors"
+        }
+      ],
+      "availability": {
+        "isPreview": true,
+        "status": 1
+      },
+      "permissions": {
+        "resourceProvider": [
+          {
+            "provider": "Microsoft.OperationalInsights/workspaces",
+            "permissionsDisplayText": "Read and Write permissions are required.",
+            "providerDisplayName": "Workspace",
+            "scope": "Workspace",
+            "requiredPermissions": {
+              "read": true,
+              "write": true,
+              "delete": true,
+              "action": false
+            }
+          }
+        ],
+        "customs": [
+          {
+            "name": "Hubspot content API scope",
+            "description": "The legacy email events endpoint requires the content scope: https://developers.hubspot.com/docs/api-reference/legacy/reporting/email-analytics/events/get-email-public-v1-events"
+          },
+          {
+            "name": "One Service Key per environment",
+            "description": "Create a separate HubSpot Service Key inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the content scope."
+          }
+        ]
+      },
+      "instructionSteps": [
+        {
+          "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Service Key generated inside that portal. Repeat this connector setup once per portal to ingest email events from both Production and Sandbox.",
+          "instructions": [
+            {
+              "type": "DataConnectorsGrid",
+              "parameters": {
+                "mapping": [
+                  {
+                    "columnName": "Environment",
+                    "columnValue": "properties.addOnAttributes.EnvironmentName"
+                  },
+                  {
+                    "columnName": "Log Type",
+                    "columnValue": "properties.addOnAttributes.LogType"
+                  }
+                ],
+                "menuItems": [
+                  "DeleteConnector"
+                ]
+              }
+            },
+            {
+              "type": "ContextPane",
+              "parameters": {
+                "isPrimary": true,
+                "label": "Add environment",
+                "title": "Add environment",
+                "subtitle": "Add environment",
+                "contextPaneType": "DataConnectorsContextPane",
+                "instructionSteps": [
+                  {
+                    "instructions": [
+                      {
+                        "type": "Textbox",
+                        "parameters": {
+                          "label": "Environment name",
+                          "placeholder": "e.g. Production or Sandbox",
+                          "type": "text",
+                          "name": "environmentname",
+                          "validations": {
+                            "required": true
+                          }
+                        }
+                      },
+                      {
+                        "type": "Textbox",
+                        "parameters": {
+                          "label": "Service key",
+                          "placeholder": "Service key",
+                          "type": "password",
+                          "name": "apikey",
+                          "validations": {
+                            "required": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

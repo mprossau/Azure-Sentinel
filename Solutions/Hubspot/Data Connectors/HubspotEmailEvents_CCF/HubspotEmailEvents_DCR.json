@@ -1,0 +1,59 @@
+[
+    {
+        "name": "hubspot-email-ccp",
+        "apiVersion": "2023-04-01-preview",
+        "type": "Microsoft.Insights/dataCollectionRules",
+        "location": "{{location}}",
+        "kind": null,
+        "properties": {
+            "dataCollectionEndpointId": "{{dataCollectionEndpointId}}",
+            "streamDeclarations": {
+                "Custom-HubspotEmailEvents_CL": {
+                    "columns": [
+                        { "name": "appId", "type": "int" },
+                        { "name": "appName", "type": "string" },
+                        { "name": "created", "type": "long" },
+                        { "name": "emailCampaignId", "type": "long" },
+                        { "name": "id", "type": "string" },
+                        { "name": "portalId", "type": "long" },
+                        { "name": "recipient", "type": "string" },
+                        { "name": "type", "type": "string" },
+                        { "name": "browser", "type": "dynamic" },
+                        { "name": "hmid", "type": "string" },
+                        { "name": "location", "type": "dynamic" },
+                        { "name": "response", "type": "string" },
+                        { "name": "sentBy", "type": "dynamic" },
+                        { "name": "sendId", "type": "string" },
+                        { "name": "smtpId", "type": "string" },
+                        { "name": "subject", "type": "string" },
+                        { "name": "userAgent", "type": "string" },
+                        { "name": "EnvironmentName", "type": "string" },
+                        { "name": "from", "type": "string" },
+                        { "name": "emailCampaignGroupId", "type": "long" },
+                        { "name": "replyTo", "type": "dynamic" },
+                        { "name": "cc", "type": "dynamic" },
+                        { "name": "bcc", "type": "dynamic" },
+                        { "name": "obsoletedBy", "type": "dynamic" }
+                    ]
+                }
+            },
+            "dataSources": {},
+            "destinations": {
+                "logAnalytics": [
+                    {
+                        "workspaceResourceId": "{{workspaceResourceId}}",
+                        "name": "clv2ws1"
+                    }
+                ]
+            },
+            "dataFlows": [
+                {
+                    "streams": ["Custom-HubspotEmailEvents_CL"],
+                    "destinations": ["clv2ws1"],
+                    "transformKql": "source | extend TimeGenerated = datetime_add('millisecond', created, datetime(1970-01-01)), From = ['from'] | project-away ['from'] | project-rename Id=id, EventType=type",
+                    "outputStream": "Custom-HubspotEmailEvents_CL"
+                }
+            ]
+        }
+    }
+]

@@ -1,0 +1,40 @@
+[
+    {
+        "name": "HubspotEmailEvents_CL",
+        "apiVersion": "2021-03-01-privatepreview",
+        "type": "Microsoft.OperationalInsights/workspaces/tables",
+        "location": "{{location}}",
+        "properties": {
+            "schema": {
+                "name": "HubspotEmailEvents_CL",
+                "columns": [
+                    { "name": "TimeGenerated", "type": "datetime", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "created", "type": "long", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "Id", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "EventType", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "appId", "type": "int", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "appName", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "portalId", "type": "long", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "emailCampaignId", "type": "long", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "emailCampaignGroupId", "type": "long", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "recipient", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "From", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "replyTo", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "cc", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "bcc", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "subject", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "smtpId", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "sentBy", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "obsoletedBy", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "browser", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "location", "type": "dynamic", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "userAgent", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "response", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "hmid", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "sendId", "type": "string", "isDefaultDisplay": false, "isHidden": false },
+                    { "name": "EnvironmentName", "type": "string" }
+                ]
+            }
+        }
+    }
+]

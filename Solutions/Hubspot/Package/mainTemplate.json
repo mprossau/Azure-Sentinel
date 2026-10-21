@@ -47,11 +47,11 @@
     "email": "tom.plant@devicie.com",
     "_email": "[variables('email')]",
     "_solutionName": "Hubspot",
-    "_solutionVersion": "3.1.0",
+    "_solutionVersion": "3.2.0",
     "solutionId": "microsoftsentinelcommunity.azure-sentinel-solution-hubspot",
     "_solutionId": "[variables('solutionId')]",
     "workspaceResourceId": "[resourceId('microsoft.OperationalInsights/Workspaces', parameters('workspace'))]",
-    "dataConnectorCCPVersion": "3.1.0",
+    "dataConnectorCCPVersion": "3.2.0",
     "_dataConnectorContentIdConnectorDefinition1": "HubspotDefinition",
     "dataConnectorTemplateNameConnectorDefinition1": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition1')))]",
     "_dataConnectorContentIdConnections1": "HubspotDefinitionConnections",
@@ -59,6 +59,11 @@
     "dataCollectionEndpointId1": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]",
     "blanks": "[replace('b', 'b', '')]",
     "TemplateEmptyObject": "[json('{}')]",
+    "_dataConnectorContentIdConnectorDefinition2": "HubspotEmailEventsDefinition",
+    "dataConnectorTemplateNameConnectorDefinition2": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnectorDefinition2')))]",
+    "_dataConnectorContentIdConnections2": "HubspotEmailEventsDefinitionConnections",
+    "dataConnectorTemplateNameConnections2": "[concat(parameters('workspace'),'-dc-',uniquestring(variables('_dataConnectorContentIdConnections2')))]",
+    "dataCollectionEndpointId2": "[concat('/subscriptions/',parameters('subscription'),'/resourceGroups/',parameters('resourceGroupName'),'/providers/Microsoft.Insights/dataCollectionEndpoints/',parameters('workspace'))]",
     "_solutioncontentProductId": "[concat(take(variables('_solutionId'),50),'-','sl','-', uniqueString(concat(variables('_solutionId'),'-','Solution','-',variables('_solutionId'),'-', variables('_solutionVersion'))))]"
   },
   "resources": [
@@ -983,16 +988,860 @@
       }
     },
     {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnectorDefinition2'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+        "displayName": "Hubspot Email Events (via Codeless Connector Framework)",
+        "contentKind": "DataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition2'))]",
+              "apiVersion": "2022-09-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+              "location": "[parameters('workspace-location')]",
+              "kind": "Customizable",
+              "properties": {
+                "connectorUiConfig": {
+                  "id": "HubspotEmailEventsDefinition",
+                  "title": "Hubspot Email Events (via Codeless Connector Framework)",
+                  "publisher": "Community",
+                  "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot marketing email events](https://developers.hubspot.com/docs/api-reference/legacy/reporting/email-analytics/events/get-email-public-v1-events) (sent, delivered, opened, clicked, bounced, etc.) into Microsoft Sentinel. This connector can be added multiple times, once per Hubspot portal (e.g. Production, Sandbox), and each instance's events are tagged with an EnvironmentName column so they can be filtered or aggregated per portal in the shared table.",
+                  "graphQueriesTableName": "HubspotEmailEvents_CL",
+                  "graphQueries": [
+                    {
+                      "metricName": "Total events received",
+                      "legend": "Email events",
+                      "baseQuery": "{{graphQueriesTableName}}"
+                    }
+                  ],
+                  "sampleQueries": [
+                    {
+                      "description": "Get Sample Events",
+                      "query": "{{graphQueriesTableName}}\n | take 10"
+                    },
+                    {
+                      "description": "Get Events by type and environment",
+                      "query": "{{graphQueriesTableName}}\n | summarize count() by EventType, EnvironmentName"
+                    }
+                  ],
+                  "dataTypes": [
+                    {
+                      "name": "{{graphQueriesTableName}}",
+                      "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
+                    }
+                  ],
+                  "connectivityCriteria": [
+                    {
+                      "type": "HasDataConnectors"
+                    }
+                  ],
+                  "availability": {
+                    "isPreview": true,
+                    "status": 1
+                  },
+                  "permissions": {
+                    "resourceProvider": [
+                      {
+                        "provider": "Microsoft.OperationalInsights/workspaces",
+                        "permissionsDisplayText": "Read and Write permissions are required.",
+                        "providerDisplayName": "Workspace",
+                        "scope": "Workspace",
+                        "requiredPermissions": {
+                          "read": true,
+                          "write": true,
+                          "delete": true,
+                          "action": false
+                        }
+                      }
+                    ],
+                    "customs": [
+                      {
+                        "name": "Hubspot content API scope",
+                        "description": "The legacy email events endpoint requires the content scope: https://developers.hubspot.com/docs/api-reference/legacy/reporting/email-analytics/events/get-email-public-v1-events"
+                      },
+                      {
+                        "name": "One Service Key per environment",
+                        "description": "Create a separate HubSpot Service Key inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the content scope."
+                      }
+                    ]
+                  },
+                  "instructionSteps": [
+                    {
+                      "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Service Key generated inside that portal. Repeat this connector setup once per portal to ingest email events from both Production and Sandbox.",
+                      "instructions": [
+                        {
+                          "type": "DataConnectorsGrid",
+                          "parameters": {
+                            "mapping": [
+                              {
+                                "columnName": "Environment",
+                                "columnValue": "properties.addOnAttributes.EnvironmentName"
+                              },
+                              {
+                                "columnName": "Log Type",
+                                "columnValue": "properties.addOnAttributes.LogType"
+                              }
+                            ],
+                            "menuItems": [
+                              "DeleteConnector"
+                            ]
+                          }
+                        },
+                        {
+                          "type": "ContextPane",
+                          "parameters": {
+                            "isPrimary": true,
+                            "label": "Add environment",
+                            "title": "Add environment",
+                            "subtitle": "Add environment",
+                            "contextPaneType": "DataConnectorsContextPane",
+                            "instructionSteps": [
+                              {
+                                "instructions": [
+                                  {
+                                    "type": "Textbox",
+                                    "parameters": {
+                                      "label": "Environment name",
+                                      "placeholder": "e.g. Production or Sandbox",
+                                      "type": "text",
+                                      "name": "environmentname",
+                                      "validations": {
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "Textbox",
+                                    "parameters": {
+                                      "label": "Service key",
+                                      "placeholder": "Service key",
+                                      "type": "password",
+                                      "name": "apikey",
+                                      "validations": {
+                                        "required": true
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition2')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition2'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+                "kind": "DataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "Tom Plant",
+                  "email": "[variables('_email')]"
+                },
+                "support": {
+                  "name": "Tom Plant",
+                  "email": "tom.plant@devicie.com",
+                  "tier": "Community",
+                  "link": "https://tplant.com.au"
+                },
+                "dependencies": {
+                  "criteria": [
+                    {
+                      "version": "[variables('dataConnectorCCPVersion')]",
+                      "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+                      "kind": "ResourcesDataConnector"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "hubspot-email-ccp",
+              "apiVersion": "2022-06-01",
+              "type": "Microsoft.Insights/dataCollectionRules",
+              "location": "[parameters('workspace-location')]",
+              "kind": "[variables('blanks')]",
+              "properties": {
+                "dataCollectionEndpointId": "[variables('dataCollectionEndpointId2')]",
+                "streamDeclarations": {
+                  "Custom-HubspotEmailEvents_CL": {
+                    "columns": [
+                      {
+                        "name": "appId",
+                        "type": "int"
+                      },
+                      {
+                        "name": "appName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "created",
+                        "type": "long"
+                      },
+                      {
+                        "name": "emailCampaignId",
+                        "type": "long"
+                      },
+                      {
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "name": "portalId",
+                        "type": "long"
+                      },
+                      {
+                        "name": "recipient",
+                        "type": "string"
+                      },
+                      {
+                        "name": "type",
+                        "type": "string"
+                      },
+                      {
+                        "name": "browser",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "hmid",
+                        "type": "string"
+                      },
+                      {
+                        "name": "location",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "response",
+                        "type": "string"
+                      },
+                      {
+                        "name": "sentBy",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "sendId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "smtpId",
+                        "type": "string"
+                      },
+                      {
+                        "name": "subject",
+                        "type": "string"
+                      },
+                      {
+                        "name": "userAgent",
+                        "type": "string"
+                      },
+                      {
+                        "name": "EnvironmentName",
+                        "type": "string"
+                      },
+                      {
+                        "name": "from",
+                        "type": "string"
+                      },
+                      {
+                        "name": "emailCampaignGroupId",
+                        "type": "long"
+                      },
+                      {
+                        "name": "replyTo",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "cc",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "bcc",
+                        "type": "dynamic"
+                      },
+                      {
+                        "name": "obsoletedBy",
+                        "type": "dynamic"
+                      }
+                    ]
+                  }
+                },
+                "dataSources": "[variables('TemplateEmptyObject')]",
+                "destinations": {
+                  "logAnalytics": [
+                    {
+                      "workspaceResourceId": "[variables('workspaceResourceId')]",
+                      "name": "clv2ws1"
+                    }
+                  ]
+                },
+                "dataFlows": [
+                  {
+                    "streams": [
+                      "Custom-HubspotEmailEvents_CL"
+                    ],
+                    "destinations": [
+                      "clv2ws1"
+                    ],
+                    "transformKql": "source | extend TimeGenerated = datetime_add('millisecond', created, datetime(1970-01-01)), From = ['from'] | project-away ['from'] | project-rename Id=id, EventType=type",
+                    "outputStream": "Custom-HubspotEmailEvents_CL"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "HubspotEmailEvents_CL",
+              "apiVersion": "2022-10-01",
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "location": "[parameters('workspace-location')]",
+              "kind": null,
+              "properties": {
+                "schema": {
+                  "name": "HubspotEmailEvents_CL",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "datetime",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "created",
+                      "type": "long",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "Id",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "EventType",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "appId",
+                      "type": "int",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "appName",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "portalId",
+                      "type": "long",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "emailCampaignId",
+                      "type": "long",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "emailCampaignGroupId",
+                      "type": "long",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "recipient",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "From",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "replyTo",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "cc",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "bcc",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "subject",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "smtpId",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "sentBy",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "obsoletedBy",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "browser",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "location",
+                      "type": "dynamic",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "userAgent",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "response",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "hmid",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "sendId",
+                      "type": "string",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "EnvironmentName",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','dc','-', uniqueString(concat(variables('_solutionId'),'-','DataConnector','-',variables('_dataConnectorContentIdConnectorDefinition2'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',variables('_dataConnectorContentIdConnectorDefinition2'))]",
+      "apiVersion": "2022-09-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectorDefinitions",
+      "location": "[parameters('workspace-location')]",
+      "kind": "Customizable",
+      "properties": {
+        "connectorUiConfig": {
+          "id": "HubspotEmailEventsDefinition",
+          "title": "Hubspot Email Events (via Codeless Connector Framework)",
+          "publisher": "Community",
+          "descriptionMarkdown": "The community [HubSpot](https://www.hubspot.com/) solution provides the capability to ingest [Hubspot marketing email events](https://developers.hubspot.com/docs/api-reference/legacy/reporting/email-analytics/events/get-email-public-v1-events) (sent, delivered, opened, clicked, bounced, etc.) into Microsoft Sentinel. This connector can be added multiple times, once per Hubspot portal (e.g. Production, Sandbox), and each instance's events are tagged with an EnvironmentName column so they can be filtered or aggregated per portal in the shared table.",
+          "graphQueriesTableName": "HubspotEmailEvents_CL",
+          "graphQueries": [
+            {
+              "metricName": "Total events received",
+              "legend": "Email events",
+              "baseQuery": "{{graphQueriesTableName}}"
+            }
+          ],
+          "sampleQueries": [
+            {
+              "description": "Get Sample Events",
+              "query": "{{graphQueriesTableName}}\n | take 10"
+            },
+            {
+              "description": "Get Events by type and environment",
+              "query": "{{graphQueriesTableName}}\n | summarize count() by EventType, EnvironmentName"
+            }
+          ],
+          "dataTypes": [
+            {
+              "name": "{{graphQueriesTableName}}",
+              "lastDataReceivedQuery": "{{graphQueriesTableName}}\n | where TimeGenerated > ago(12h) | summarize Time = max(TimeGenerated) by EnvironmentName\n | where isnotempty(Time)"
+            }
+          ],
+          "connectivityCriteria": [
+            {
+              "type": "HasDataConnectors"
+            }
+          ],
+          "availability": {
+            "isPreview": true,
+            "status": 1
+          },
+          "permissions": {
+            "resourceProvider": [
+              {
+                "provider": "Microsoft.OperationalInsights/workspaces",
+                "permissionsDisplayText": "Read and Write permissions are required.",
+                "providerDisplayName": "Workspace",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                  "read": true,
+                  "write": true,
+                  "delete": true,
+                  "action": false
+                }
+              }
+            ],
+            "customs": [
+              {
+                "name": "Hubspot content API scope",
+                "description": "The legacy email events endpoint requires the content scope: https://developers.hubspot.com/docs/api-reference/legacy/reporting/email-analytics/events/get-email-public-v1-events"
+              },
+              {
+                "name": "One Service Key per environment",
+                "description": "Create a separate HubSpot Service Key inside each portal you connect (e.g. one while logged into Production, one while logged into the Sandbox), each with the content scope."
+              }
+            ]
+          },
+          "instructionSteps": [
+            {
+              "description": "Enter a label for this Hubspot portal (e.g. Production or Sandbox) and the Service Key generated inside that portal. Repeat this connector setup once per portal to ingest email events from both Production and Sandbox.",
+              "instructions": [
+                {
+                  "type": "DataConnectorsGrid",
+                  "parameters": {
+                    "mapping": [
+                      {
+                        "columnName": "Environment",
+                        "columnValue": "properties.addOnAttributes.EnvironmentName"
+                      },
+                      {
+                        "columnName": "Log Type",
+                        "columnValue": "properties.addOnAttributes.LogType"
+                      }
+                    ],
+                    "menuItems": [
+                      "DeleteConnector"
+                    ]
+                  }
+                },
+                {
+                  "type": "ContextPane",
+                  "parameters": {
+                    "isPrimary": true,
+                    "label": "Add environment",
+                    "title": "Add environment",
+                    "subtitle": "Add environment",
+                    "contextPaneType": "DataConnectorsContextPane",
+                    "instructionSteps": [
+                      {
+                        "instructions": [
+                          {
+                            "type": "Textbox",
+                            "parameters": {
+                              "label": "Environment name",
+                              "placeholder": "e.g. Production or Sandbox",
+                              "type": "text",
+                              "name": "environmentname",
+                              "validations": {
+                                "required": true
+                              }
+                            }
+                          },
+                          {
+                            "type": "Textbox",
+                            "parameters": {
+                              "label": "Service key",
+                              "placeholder": "Service key",
+                              "type": "password",
+                              "name": "apikey",
+                              "validations": {
+                                "required": true
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnectorDefinition2')))]",
+      "apiVersion": "2022-01-01-preview",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+      "properties": {
+        "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectorDefinitions', variables('_dataConnectorContentIdConnectorDefinition2'))]",
+        "contentId": "[variables('_dataConnectorContentIdConnectorDefinition2')]",
+        "kind": "DataConnector",
+        "version": "[variables('dataConnectorCCPVersion')]",
+        "source": {
+          "sourceId": "[variables('_solutionId')]",
+          "name": "[variables('_solutionName')]",
+          "kind": "Solution"
+        },
+        "author": {
+          "name": "Tom Plant",
+          "email": "[variables('_email')]"
+        },
+        "support": {
+          "name": "Tom Plant",
+          "email": "tom.plant@devicie.com",
+          "tier": "Community",
+          "link": "https://tplant.com.au"
+        },
+        "dependencies": {
+          "criteria": [
+            {
+              "version": "[variables('dataConnectorCCPVersion')]",
+              "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+              "kind": "ResourcesDataConnector"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/contentTemplates",
+      "apiVersion": "2023-04-01-preview",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/', variables('dataConnectorTemplateNameConnections2'), variables('dataConnectorCCPVersion'))]",
+      "location": "[parameters('workspace-location')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/contentPackages', variables('_solutionId'))]"
+      ],
+      "properties": {
+        "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+        "displayName": "Hubspot Email Events (via Codeless Connector Framework)",
+        "contentKind": "ResourcesDataConnector",
+        "mainTemplate": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "[variables('dataConnectorCCPVersion')]",
+          "parameters": {
+            "guidValue": {
+              "defaultValue": "[[newGuid()]",
+              "type": "securestring"
+            },
+            "innerWorkspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "connectorDefinitionName": {
+              "defaultValue": "Hubspot Email Events (via Codeless Connector Framework)",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "workspace": {
+              "defaultValue": "[parameters('workspace')]",
+              "type": "securestring"
+            },
+            "dcrConfig": {
+              "defaultValue": {
+                "dataCollectionEndpoint": "data collection Endpoint",
+                "dataCollectionRuleImmutableId": "data collection rule immutableId"
+              },
+              "type": "object"
+            },
+            "environmentname": {
+              "defaultValue": "environmentname",
+              "type": "securestring",
+              "minLength": 1
+            },
+            "apikey": {
+              "defaultValue": "apikey",
+              "type": "securestring",
+              "minLength": 1
+            }
+          },
+          "variables": {
+            "_dataConnectorContentIdConnections2": "[variables('_dataConnectorContentIdConnections2')]"
+          },
+          "resources": [
+            {
+              "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/',concat('DataConnector-', variables('_dataConnectorContentIdConnections2')))]",
+              "apiVersion": "2022-01-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/metadata",
+              "properties": {
+                "parentId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspace')), 'Microsoft.SecurityInsights/dataConnectors', variables('_dataConnectorContentIdConnections2'))]",
+                "contentId": "[variables('_dataConnectorContentIdConnections2')]",
+                "kind": "ResourcesDataConnector",
+                "version": "[variables('dataConnectorCCPVersion')]",
+                "source": {
+                  "sourceId": "[variables('_solutionId')]",
+                  "name": "[variables('_solutionName')]",
+                  "kind": "Solution"
+                },
+                "author": {
+                  "name": "Tom Plant",
+                  "email": "[variables('_email')]"
+                },
+                "support": {
+                  "name": "Tom Plant",
+                  "email": "tom.plant@devicie.com",
+                  "tier": "Community",
+                  "link": "https://tplant.com.au"
+                }
+              }
+            },
+            {
+              "name": "[[concat(parameters('innerWorkspace'), '/Microsoft.SecurityInsights', '/HubspotEmailEventsPoller_', parameters('environmentname'), parameters('guidValue'))]",
+              "apiVersion": "2023-02-01-preview",
+              "type": "Microsoft.OperationalInsights/workspaces/providers/dataConnectors",
+              "location": "[parameters('workspace-location')]",
+              "kind": "RestApiPoller",
+              "properties": {
+                "connectorDefinitionName": "HubspotEmailEventsDefinition",
+                "dataType": "HubspotEmailEvents_CL",
+                "dcrConfig": {
+                  "streamName": "Custom-HubspotEmailEvents_CL",
+                  "dataCollectionEndpoint": "[[parameters('dcrConfig').dataCollectionEndpoint]",
+                  "dataCollectionRuleImmutableId": "[[parameters('dcrConfig').dataCollectionRuleImmutableId]"
+                },
+                "addOnAttributes": {
+                  "EnvironmentName": "[[parameters('environmentname')]",
+                  "LogType": "Email Events"
+                },
+                "auth": {
+                  "type": "APIKey",
+                  "ApiKey": "[[parameters('apikey')]",
+                  "ApiKeyName": "Authorization",
+                  "ApiKeyIdentifier": "Bearer"
+                },
+                "request": {
+                  "httpMethod": "GET",
+                  "apiEndpoint": "https://api.hubapi.com/email/public/v1/events",
+                  "queryWindowInMin": 5,
+                  "queryTimeFormat": "UnixTimestampInMills",
+                  "startTimeAttributeName": "startTimestamp",
+                  "endTimeAttributeName": "endTimestamp",
+                  "headers": {
+                    "Accept": "application/json",
+                    "User-Agent": "Scuba"
+                  },
+                  "queryParameters": {
+                    "limit": "100"
+                  },
+                  "rateLimitConfig": {
+                    "evaluation": {
+                      "checkMode": "OnlyWhen429"
+                    },
+                    "extraction": {
+                      "source": "CustomHeaders",
+                      "headers": {
+                        "limit": {
+                          "name": "X-HubSpot-RateLimit-Max",
+                          "format": "Integer"
+                        },
+                        "remaining": {
+                          "name": "X-HubSpot-RateLimit-Remaining",
+                          "format": "Integer"
+                        },
+                        "reset": {
+                          "name": "X-HubSpot-RateLimit-Interval-Milliseconds",
+                          "format": "UnixTimeMilliseconds"
+                        }
+                      }
+                    },
+                    "retryStrategy": {
+                      "useResetOrRetryAfterHeaders": true
+                    }
+                  }
+                },
+                "response": {
+                  "eventsJsonPaths": [
+                    "$.events"
+                  ],
+                  "format": "json"
+                },
+                "paging": {
+                  "pagingType": "NextPageToken",
+                  "pageSize": 1000,
+                  "nextPageParaName": "offset",
+                  "nextPageTokenJsonPath": "$.offset",
+                  "hasNextFlagJsonPath": "$.hasMore"
+                },
+                "isActive": true
+              }
+            }
+          ]
+        },
+        "packageKind": "Solution",
+        "packageVersion": "[variables('_solutionVersion')]",
+        "packageName": "[variables('_solutionName')]",
+        "contentProductId": "[concat(take(variables('_solutionId'), 50),'-','rdc','-', uniqueString(concat(variables('_solutionId'),'-','ResourcesDataConnector','-',variables('_dataConnectorContentIdConnections2'),'-', variables('dataConnectorCCPVersion'))))]",
+        "packageId": "[variables('_solutionId')]",
+        "contentSchemaVersion": "3.0.0",
+        "version": "[variables('dataConnectorCCPVersion')]"
+      }
+    },
+    {
       "type": "Microsoft.OperationalInsights/workspaces/providers/contentPackages",
       "apiVersion": "2023-04-01-preview",
       "location": "[parameters('workspace-location')]",
       "properties": {
-        "version": "3.1.0",
+        "version": "3.2.0",
         "kind": "Solution",
         "contentSchemaVersion": "3.0.0",
         "displayName": "Hubspot",
         "publisherDisplayName": "Tom Plant",
-        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/Hubspot/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>The unofficial <a href=\"https://www.hubspot.com/\">HubSpot</a> solution provides the capability to ingest <a href=\"https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide\">Hubspot account activity</a> into Microsoft Sentinel.</p>\n<p><strong>Underlying Microsoft Technologies used:</strong></p>\n<p>This solution takes a dependency on the following technologies, and some of these dependencies either may be in Preview state or might result in additional ingestion or operational costs:</p>\n<ol type=\"a\">\n<li><a href=\"https://learn.microsoft.com/en-us/azure/sentinel/create-custom-connector\">Codeless Connector Framework (CCF)</a></li>\n</ol>\n<p><strong>Data Connectors:</strong> 1</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
+        "descriptionHtml": "<p><strong>Note:</strong> Please refer to the following before installing the solution:</p>\n<p>• Review the solution <a href=\"https://github.com/Azure/Azure-Sentinel/tree/master/Solutions/Hubspot/ReleaseNotes.md\">Release Notes</a></p>\n<p>• There may be <a href=\"https://aka.ms/sentinelsolutionsknownissues\">known issues</a> pertaining to this Solution, please refer to them before installing.</p>\n<p>The unofficial <a href=\"https://www.hubspot.com/\">HubSpot</a> solution provides the capability to ingest <a href=\"https://developers.hubspot.com/docs/api-reference/account-audit-logs-v3/guide\">Hubspot account activity</a> into Microsoft Sentinel.</p>\n<p><strong>Underlying Microsoft Technologies used:</strong></p>\n<p>This solution takes a dependency on the following technologies, and some of these dependencies either may be in Preview state or might result in additional ingestion or operational costs:</p>\n<ol type=\"a\">\n<li><a href=\"https://learn.microsoft.com/en-us/azure/sentinel/create-custom-connector\">Codeless Connector Framework (CCF)</a></li>\n</ol>\n<p><strong>Data Connectors:</strong> 2</p>\n<p><a href=\"https://aka.ms/azuresentinel\">Learn more about Microsoft Sentinel</a> | <a href=\"https://aka.ms/azuresentinelsolutionsdoc\">Learn more about Solutions</a></p>\n",
         "contentKind": "Solution",
         "contentProductId": "[variables('_solutioncontentProductId')]",
         "id": "[variables('_solutioncontentProductId')]",
@@ -1020,6 +1869,11 @@
             {
               "kind": "DataConnector",
               "contentId": "[variables('_dataConnectorContentIdConnections1')]",
+              "version": "[variables('dataConnectorCCPVersion')]"
+            },
+            {
+              "kind": "DataConnector",
+              "contentId": "[variables('_dataConnectorContentIdConnections2')]",
               "version": "[variables('dataConnectorCCPVersion')]"
             }
           ]
